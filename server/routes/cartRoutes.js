@@ -9,9 +9,9 @@ import { isAuthenticatedUser } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.route("/cart").post(isAuthenticatedUser, addToCart);
-router.route("/cart").get(isAuthenticatedUser, getCart);
-router.route("/cart/:itemId").delete(isAuthenticatedUser, removeFromCart);
-router.route("/cart/clear").delete(isAuthenticatedUser, clearCart);
+router.post("/", isAuthenticatedUser, addToCart);
+router.get("/", isAuthenticatedUser, getCart);
+router.delete("/:itemId", isAuthenticatedUser, removeFromCart);
+router.delete("/clear", isAuthenticatedUser, clearCart);
 
 export default router;

@@ -11,18 +11,28 @@ import { isAuthenticatedUser, authorizeRoles } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.route("/order/new").post(isAuthenticatedUser, newOrder);
-router.route("/order/:id").get(isAuthenticatedUser, getSingleOrder);
-router.route("/orders/me").get(isAuthenticatedUser, myOrders);
+router.post("/new", isAuthenticatedUser, newOrder);
+router.get("/:id", isAuthenticatedUser, getSingleOrder); // Fixed parameter
+router.get("/me", isAuthenticatedUser, myOrders);
 
 // Admin routes
-router
-  .route("/admin/orders")
-  .get(isAuthenticatedUser, authorizeRoles("admin"), allOrders);
-
-router
-  .route("/admin/order/:id")
-  .put(isAuthenticatedUser, authorizeRoles("admin"), updateOrder)
-  .delete(isAuthenticatedUser, authorizeRoles("admin"), deleteOrder);
+router.get(
+  "/admin/orders",
+  isAuthenticatedUser,
+  authorizeRoles("admin"),
+  allOrders
+);
+router.put(
+  "/admin/order/:id",
+  isAuthenticatedUser,
+  authorizeRoles("admin"),
+  updateOrder
+); // Fixed parameter
+router.delete(
+  "/admin/order/:id",
+  isAuthenticatedUser,
+  authorizeRoles("admin"),
+  deleteOrder
+); // Fixed parameter
 
 export default router;

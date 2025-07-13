@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../features/products/productSlice";
-import { FaFilter, FaTimes } from "react-icons/fa";
+import { FaStar, FaFilter, FaTimes, FaRegStar } from "react-icons/fa";
 
 const Filters = () => {
   const dispatch = useDispatch();

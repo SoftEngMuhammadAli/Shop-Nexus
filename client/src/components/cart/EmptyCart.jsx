@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
+import React from "react";
 
 const EmptyCart = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-12">
+    <div className="flex flex-col place-items-center items-center justify-center py-12">
       <div className="bg-gray-100 p-8 rounded-full mb-6">
         <FaShoppingCart className="text-5xl text-gray-400" />
       </div>

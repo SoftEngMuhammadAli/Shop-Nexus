@@ -6,7 +6,7 @@ export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await API.get("/products");
+      const { data } = await API.get("/product");
       return data.products;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -19,7 +19,7 @@ export const getProductDetails = createAsyncThunk(
   "products/getDetails",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await API.get(`/products/${id}`);
+      const { data } = await API.get(`/product/${id}`);
       return data.product;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -31,7 +31,7 @@ export const fetchFeaturedProducts = createAsyncThunk(
   "products/fetchFeatured",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await API.get("/products/featured");
+      const { data } = await API.get("/product/");
       return data.products;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -44,7 +44,7 @@ export const submitReview = createAsyncThunk(
   "products/submitReview",
   async ({ productId, rating, comment }, { rejectWithValue }) => {
     try {
-      const { data } = await API.put(`/products/${productId}/reviews`, {
+      const { data } = await API.put(`/product/${productId}/reviews`, {
         rating,
         comment,
       });

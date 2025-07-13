@@ -9,19 +9,41 @@ import crypto from "crypto";
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    avatar: {
-      public_id: "avatars/default_avatar_id",
-      url: "https://res.cloudinary.com/your-cloud-name/image/upload/v1620000000/avatars/default_avatar.jpg",
-    },
-  });
+  // Basic validation
+  if (!name || !email || !password) {
+    return next(new ErrorHandler("Please provide all required fields", 400));
+  }
 
-  sendToken(user, 200, res);
+  try {
+    const user = await User.create({
+      name,
+      email,
+      password,
+      avatar: {
+        public_id: "avatars/default_avatar_id",
+        url: "https://res.cloudinary.com/your-cloud-name/image/upload/v1620000000/avatars/default_avatar.jpg",
+      },
+    });
+
+    sendToken(user, 200, res);
+  } catch (error) {
+    console.error("Registration error details:", error);
+
+    // Handle duplicate email error
+    if (error.code === 11000 && error.keyPattern.email) {
+      return next(new ErrorHandler("Email already exists", 400));
+    }
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((val) => val.message);
+      return next(new ErrorHandler(messages.join(", "), 400));
+    }
+
+    // Generic error handler
+    return next(new ErrorHandler(error.message, 500));
+  }
 });
-
 // Login user => /api/v1/login
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserDetails, updateProfile } from "../../features/auth/authSlice";
 import Loader from "../../components/ui/Loader";

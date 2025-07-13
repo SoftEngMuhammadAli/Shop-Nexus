@@ -12,14 +12,14 @@ import { isAuthenticatedUser } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.route("/register").post(registerUser);
-router.route("/login").post(loginUser);
-router.route("/logout").get(logout);
+router.post("/auth/register", registerUser);
+router.post("/auth/login", loginUser);
+router.get("/auth/logout", logout);
 
-router.route("/password/forgot").post(forgotPassword);
-router.route("/password/reset/:token").put(resetPassword);
+router.post("/auth/password/forgot", forgotPassword);
+router.put("/auth/password/reset/:token", resetPassword);
 
-router.route("/me").get(isAuthenticatedUser, getUserProfile);
-router.route("/password/update").put(isAuthenticatedUser, updatePassword);
+router.get("/auth/me", isAuthenticatedUser, getUserProfile);
+router.put("/auth/password/update", isAuthenticatedUser, updatePassword);
 
 export default router;

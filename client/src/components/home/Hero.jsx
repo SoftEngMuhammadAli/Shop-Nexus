@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

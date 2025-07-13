@@ -1,60 +1,55 @@
-import React from "react";
-import {
-  Routes,
-  Route,
-  useLocation,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
-import Layout from "./components/layout/Layout";
-import Products from "./pages/Products";
-import ProductDetails from "./pages/ProductDetails";
-import Cart from "./pages/Cart";
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
 import Profile from "./pages/user/Profile";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import AdminRoute from "./components/auth/AdminRoute";
+import Cart from "./pages/Cart";
 import Dashboard from "./pages/admin/Dashboard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { initializeAuth } from "./features/auth/authSlice";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { AdminRoute } from "./components/auth/AdminRoute";
+import Home from "./pages/Home";
 
 function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { isAuthenticated, initialized } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Layout>
-      <Routes>
-        {/* Redirect root path ("/") to /login if not authenticated */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/profile" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-
-        {/* Protected routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/cart" element={<Cart />} />
-        </Route>
-
-        {/* Admin routes */}
-        <Route element={<AdminRoute />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-        </Route>
-      </Routes>
-    </Layout>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          isAuthenticated === null ? (
+            <Navigate to="/" />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/products" element={<Products />} />
+      <Route path="/product/:id" element={<ProductDetails />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/cart" element={<Cart />} />
+      </Route>
+      <Route element={<AdminRoute />}>
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+      </Route>
+    </Routes>
   );
 }
 

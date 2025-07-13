@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateCartQuantity, removeFromCart } from "../features/cart/cartSlice";
 import { Link } from "react-router-dom";
 import EmptyCart from "../components/cart/EmptyCart";
+import React from "react";
 
 const Cart = () => {
   const dispatch = useDispatch();

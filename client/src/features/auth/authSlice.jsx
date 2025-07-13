@@ -6,7 +6,13 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const { data } = await API.post("/auth/login", { email, password });
+      const { data } = await API.post(
+        "/auth/login",
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
       localStorage.setItem("token", data.token);
       return data;
     } catch (error) {
@@ -20,15 +26,29 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async ({ name, email, password }, { rejectWithValue }) => {
     try {
-      const { data } = await API.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
+      const { data } = await API.post(
+        "/auth/register",
+        { name, email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       localStorage.setItem("token", data.token);
       return data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      console.error("Full error object:", error);
+
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+
+      if (error.request) {
+        return rejectWithValue("No response from server");
+      }
+
+      return rejectWithValue(error.message || "Registration failed");
     }
   }
 );
@@ -69,12 +89,22 @@ const authSlice = createSlice({
     isAuthenticated: false,
     loading: false,
     error: null,
+    initialized: false,
   },
   reducers: {
     logout: (state) => {
       localStorage.removeItem("token");
       state.user = null;
       state.isAuthenticated = false;
+    },
+    initializeAuth: (state) => {
+      const token = localStorage.getItem("token");
+      state.isAuthenticated = !!token;
+      state.initialized = true;
+      if (!token) {
+        state.user = null;
+        state.isAuthenticated = false;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -133,5 +163,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, initializeAuth } = authSlice.actions;
 export default authSlice.reducer;

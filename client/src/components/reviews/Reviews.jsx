@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { FaStar, FaRegStar, FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { submitReview } from "../../features/products/productSlice";
