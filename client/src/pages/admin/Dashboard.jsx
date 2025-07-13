@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAdminStats } from "../../features/";
+import { getAdminStats } from "../../features/admin/adminSlice";
 import StatsCard from "../../components/admin/StatsCard";
 import Loader from "../../components/ui/Loader";
 

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from "../../api/axios";
+import API from "../../services/axios";
 
 // Login user
 export const loginUser = createAsyncThunk(
@@ -39,6 +39,22 @@ export const getUserDetails = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await API.get("/auth/me");
+      return data.user;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+// Update user profile
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async ({ name, email, password }, { rejectWithValue }) => {
+    try {
+      const { data } = await API.put("/auth/update-profile", {
+        name,
+        email,
+        password,
+      });
       return data.user;
     } catch (error) {
       return rejectWithValue(error.response.data.message);
@@ -102,6 +118,17 @@ const authSlice = createSlice({
       })
       .addCase(getUserDetails.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
