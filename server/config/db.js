@@ -1,14 +1,42 @@
 import mongoose from "mongoose";
+
 import dotenv from "dotenv";
 dotenv.config();
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+    const connectionURI =
+      process.env.NODE_ENV === "production"
+        ? process.env.PRODUCTION_DATABASE_URI
+        : process.env.DEVELOPMENT_DATABASE_URI;
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    if (!connectionURI) {
+      throw new Error(
+        "MongoDB connection URI not defined in environment variables"
+      );
+    }
+
+    const conn = await mongoose.connect(connectionURI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4,
+    });
+
+    console.log(`✅ MongoDB is Connected on: ${conn.connection.host}`);
+
+    mongoose.connection.on("connected", () => {
+      console.log("Mongoose connected to DB");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      console.error("Mongoose connection error:", err);
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      console.log("Mongoose disconnected");
+    });
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
     process.exit(1);
   }
 };
