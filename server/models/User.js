@@ -1,55 +1,54 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please enter your name"],
-    maxLength: [30, "Name cannot exceed 30 characters"],
-    minLength: [3, "Name should have more than 3 characters"],
-  },
-  email: {
-    type: String,
-    required: [true, "Please enter your email"],
-    unique: true,
-    validate: {
-      validator: function (v) {
-        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Please enter your name"],
+      maxLength: [30, "Name cannot exceed 30 characters"],
+      minLength: [3, "Name should have more than 3 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please enter your email"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Please enter your password"],
+      minLength: [6, "Password should be at least 6 characters"],
+      select: false,
+    },
+    avatar: {
+      public_id: {
+        type: String,
+        required: true,
+        default: "avatars/default_avatar_id",
       },
-      message: (props) => `${props.value} is not a valid email!`,
+      url: {
+        type: String,
+        required: true,
+        default:
+          "https://res.cloudinary.com/your-cloud-name/image/upload/v1620000000/avatars/default_avatar.jpg",
+      },
     },
-  },
-  password: {
-    type: String,
-    required: [true, "Please enter your password"],
-    minLength: [6, "Password should be at least 6 characters"],
-    select: false,
-  },
-  avatar: {
-    public_id: {
+    role: {
       type: String,
-      required: true,
-      default: "avatars/default_avatar_id",
+      enum: ["user", "admin"],
+      default: "user",
     },
-    url: {
-      type: String,
-      required: true,
-      default:
-        "https://res.cloudinary.com/your-cloud-name/image/upload/v1620000000/avatars/default_avatar.jpg",
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
   },
-  role: {
-    type: String,
-    default: "user",
-    enum: ["user", "admin"],
-  },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Encrypt password before saving
 userSchema.pre("save", async function (next) {

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
     const connectionURI =
       process.env.NODE_ENV === "production"
@@ -40,5 +40,3 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-
-export default connectDB;
