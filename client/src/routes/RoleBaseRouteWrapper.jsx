@@ -1,7 +1,19 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { Outlet, Navigate } from "react-router-dom";
 
-const RoleBaseRouteWrapper = () => {
-  return <>RoleBaseRouteWrapper</>;
+const RoleProtectedRouteWrapper = ({ allowedRoles }) => {
+  const { user } = useSelector((state) => state.auth);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return allowedRoles.includes(user.userRole) ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/notfound" replace />
+  );
 };
 
-export default RoleBaseRouteWrapper;
+export default RoleProtectedRouteWrapper;
