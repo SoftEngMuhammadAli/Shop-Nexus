@@ -23,5 +23,38 @@ dist-ssr
 *.sln
 *.sw?
 
-# Env
+# dependencies
+node_modules/
+
+# production build
+dist/
+
+# environment variables
 .env
+.env.*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local IDE/editor settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Optional: skip local coverage data
+coverage/
+
+# Optional: skip testing cache (e.g., Vitest)
+*.log
+*.tsbuildinfo
+.cache/
