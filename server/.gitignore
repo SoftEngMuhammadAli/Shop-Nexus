@@ -1,0 +1,5 @@
+# Project Folders
+node_modules/
+
+# Env
+.env
