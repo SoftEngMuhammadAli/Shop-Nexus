@@ -1,7 +1,10 @@
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
+import {
+  generateToken,
+  hashPassword,
+  comparePasswords,
+} from "../utils/authHelpers.js";
 
 // ==========================
 // REGISTER USER
@@ -24,12 +27,12 @@ export const registerUser = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashed = await hashPassword(password);
 
   const newUser = new User({
     name,
     email,
-    password: hashedPassword,
+    password: hashed,
     userRole,
     profilePicture,
     bio,
@@ -37,11 +40,8 @@ export const registerUser = catchAsyncHandler(async (req, res) => {
 
   await newUser.save();
 
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  const token = generateToken(newUser._id);
 
-  // Set token in cookie
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -67,67 +67,55 @@ export const registerUser = catchAsyncHandler(async (req, res) => {
 // ==========================
 // LOGIN USER
 // ==========================
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+export const loginUser = catchAsyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required.",
-      });
-    }
-
-    const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password.",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password.",
-      });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    user.password = undefined;
-
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .status(200)
-      .json({
-        success: true,
-        message: "User logged in successfully",
-        token,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          userRole: user.userRole,
-          profilePicture: user.profilePicture,
-          bio: user.bio,
-        },
-      });
-  } catch (error) {
-    console.error("Error in loginUser:", error);
-    res.status(500).json({
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
-      message: "Internal server error",
+      message: "Email and password are required.",
     });
   }
-};
+
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid email or password.",
+    });
+  }
+
+  const isMatch = await comparePasswords(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid email or password.",
+    });
+  }
+
+  const token = generateToken(user._id);
+  user.password = undefined;
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      userRole: user.userRole,
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+    },
+  });
+});
 
 // ==========================
 // LOGOUT USER

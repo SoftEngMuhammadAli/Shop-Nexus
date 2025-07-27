@@ -8,6 +8,7 @@ import { connectToDatabase } from "./config/database.js";
 // API Routers
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
+import productRouter from "./routers/productRouter.js";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.get("/", (_req, res) => {
 // API Routes
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/products", productRouter);
 
 // Connect to DB
 connectToDatabase(process.env.MONGODB_URI);
