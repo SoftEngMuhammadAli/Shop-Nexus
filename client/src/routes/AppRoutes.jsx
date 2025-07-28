@@ -37,6 +37,8 @@ export const AppRoutes = () => {
         {/* Protected routes */}
         <Route element={<ProtectedRouteWrapper />}>
           <Route path="/home" element={<HomePage />} />
+
+          {/*  */}
           <Route element={<MainLayout />}>
             {/* Role-based nested route example */}
             <Route

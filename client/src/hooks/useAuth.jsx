@@ -1,13 +1,20 @@
-// import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../features/authSlice";
 
-// const useAuth = () => {
-//   const { user } = useSelector((state) => state.auth);
-//   const isAuthenticated = !!user;
+export const useAuth = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
-//   return {
-//     isAuthenticated,
-//     user_type: user?.user_type,
-//   };
-// };
+  const token = localStorage.getItem("token");
+  const isAuthenticated = !!token && !!user;
 
-// export default useAuth;
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  return {
+    isAuthenticated,
+    user,
+    logout: handleLogout,
+  };
+};
