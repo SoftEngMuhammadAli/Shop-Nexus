@@ -7,6 +7,7 @@ const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,18 +23,34 @@ const RegisterPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-    const { name, email, password } = formData;
-    dispatch(registerUser({ name, email, password }));
+
+    setIsSubmitting(true);
+    try {
+      const { name, email, password } = formData;
+      const result = await dispatch(
+        registerUser({ name, email, password })
+      ).unwrap();
+      console.log("Registration successful:", result);
+    } catch (err) {
+      alert("Registration failed. Please try again.");
+      console.error("Registration error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
-    if (user) navigate("/admin-dashboard");
+    const role = user?.user?.userRole;
+
+    if (role === "admin") navigate("/admin-dashboard");
+    else if (role === "student") navigate("/student-dashboard");
+    else if (role === "teacher") navigate("/teacher-dashboard");
   }, [user, navigate]);
 
   return (
@@ -45,9 +62,9 @@ const RegisterPage = () => {
           Sign up to explore your dashboard and manage content.
         </p>
         <img
-          src="https://illustrations.popsy.co/white/signup.svg"
-          alt="signup"
-          className="w-80 mt-8 hidden md:block"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsdy2XkgnBjV_eqKqGlGkrOW7VBwDyq2Ltlg&s"
+          alt="Login illustration"
+          className="w-80 mt-8 rounded-lg shadow-lg hidden md:block"
         />
       </div>
 
@@ -120,9 +137,12 @@ const RegisterPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+              disabled={isSubmitting}
+              className={`w-full ${
+                isSubmitting ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+              } text-white font-semibold py-2 px-4 rounded-lg transition`}
             >
-              Sign Up
+              {isSubmitting ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
 

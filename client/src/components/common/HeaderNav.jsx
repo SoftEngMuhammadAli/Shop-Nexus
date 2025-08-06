@@ -1,21 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout as logoutAction } from "../../features/authSlice";
 
 const HeaderNav = () => {
   const { isAuthenticated, logout } = useAuth();
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    dispatch(logoutAction());
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     alert("Logout Successful!");
-    setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.reload();
-      navigate("/login");
-    }, 300);
+    navigate("/login");
   };
 
   return (

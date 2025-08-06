@@ -24,15 +24,24 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const resultAction = await dispatch(
-      loginUser({ email: formData.email, password: formData.password })
-    );
-    if (loginUser.fulfilled.match(resultAction)) {
-      if (user?.userRole === "admin") navigate("/admin-dashboard");
-      else if (user?.userRole === "user") navigate("/home");
-      else if (user?.userRole === "super-admin")
+    try {
+      const result = await dispatch(
+        loginUser({ email: formData.email, password: formData.password })
+      ).unwrap();
+
+      const role = result?.user?.userRole;
+
+      if (role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (role === "user") {
+        navigate("/home");
+      } else if (role === "super-admin") {
         alert("Super Admin Dashboard is not ready yet!");
-      else alert("Some Error while login");
+      } else {
+        console.warn("Unknown role or missing role.", result);
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
     }
   };
 
@@ -41,13 +50,13 @@ const LoginPage = () => {
       {/* Left Panel */}
       <div className="bg-gradient-to-br from-indigo-600 to-blue-500 text-white p-10 flex flex-col justify-center items-center">
         <h1 className="text-4xl font-bold mb-4">Welcome Back 👋</h1>
-        <p className="text-lg">
-          Login to manage your account and explore more.
+        <p className="text-lg text-center max-w-sm">
+          Login to manage your account and explore more with ShopNexus.
         </p>
         <img
-          src="https://illustrations.popsy.co/white/login.svg"
-          alt="login"
-          className="w-80 mt-8 hidden md:block"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsdy2XkgnBjV_eqKqGlGkrOW7VBwDyq2Ltlg&s"
+          alt="Login illustration"
+          className="w-80 mt-8 rounded-lg shadow-lg hidden md:block"
         />
       </div>
 
