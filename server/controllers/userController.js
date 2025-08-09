@@ -92,3 +92,10 @@ export const getUserProfileByUserRole = catchAsyncHandler(async (req, res) => {
 // ==========================
 // DELETE User By ID (TODO)
 // ==========================
+
+// ==========================
+// CREATE User (TODO)
+// ==========================
+export const createNewUser = catchAsyncHandler(async (req, res) => {
+  
+});
