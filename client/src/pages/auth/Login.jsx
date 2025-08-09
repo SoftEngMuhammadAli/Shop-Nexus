@@ -56,7 +56,7 @@ const LoginPage = () => {
         <img
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsdy2XkgnBjV_eqKqGlGkrOW7VBwDyq2Ltlg&s"
           alt="Login illustration"
-          className="w-80 mt-8 rounded-lg shadow-lg hidden md:block"
+          className="w-40 mt-8 rounded-lg shadow-lg hidden md:block"
         />
       </div>
 
