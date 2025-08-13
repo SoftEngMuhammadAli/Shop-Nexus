@@ -17,10 +17,16 @@ import ProtectedRouteWrapper from "../routes/ProtectedRouteWrapper";
 import NotFound from "../pages/NotFound";
 import RoleProtectedRouteWrapper from "../routes/RoleBaseRouteWrapper";
 import HomePage from "../pages/HomePage";
+import ManageUsers from "../pages/admin/users/ManageUsers";
 
 // Layout
 const MainLayout = () => {
-  return <Outlet />;
+  return (
+    <div>
+      {/* You can add common layout components here like header, sidebar, etc. */}
+      <Outlet />
+    </div>
+  );
 };
 
 export const AppRoutes = () => {
@@ -36,20 +42,22 @@ export const AppRoutes = () => {
 
         {/* Protected routes */}
         <Route element={<ProtectedRouteWrapper />}>
-          <Route path="/home" element={<HomePage />} />
-
-          {/*  */}
           <Route element={<MainLayout />}>
-            {/* Role-based nested route example */}
+            {/* Common protected routes */}
+            <Route path="/home" element={<HomePage />} />
+
+            {/* Admin specific routes */}
             <Route
-              path="/admin-dashboard"
               element={<RoleProtectedRouteWrapper allowedRoles={["admin"]} />}
             >
-              <Route index element={<AdminDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/manage-users" element={<ManageUsers />} />
             </Route>
           </Route>
         </Route>
-        <Route path="/notfound" element={<NotFound />} />
+
+        {/* Fallback route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
