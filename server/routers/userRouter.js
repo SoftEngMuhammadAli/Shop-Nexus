@@ -25,7 +25,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users/all:
+ * /api/users/all:
  *   get:
  *     summary: Get all users (admin only)
  *     tags: [Users]
@@ -39,7 +39,7 @@ router.get("/all", checkAuth, authorizeRoles("admin"), getUserProfiles);
 
 /**
  * @swagger
- * /users/profile/{id}:
+ * /api/users/profile/{id}:
  *   get:
  *     summary: Get user profile by ID
  *     tags: [Users]
@@ -67,7 +67,7 @@ router.get(
 
 /**
  * @swagger
- * /users/profileByName/{name}:
+ * /api/users/profileByName/{name}:
  *   get:
  *     summary: Get users by name
  *     tags: [Users]
@@ -95,7 +95,7 @@ router.get(
 
 /**
  * @swagger
- * /users/profileByRole/{userRole}:
+ * /api/users/profileByRole/{userRole}:
  *   get:
  *     summary: Get users by role
  *     tags: [Users]
@@ -123,7 +123,7 @@ router.get(
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   put:
  *     summary: Update a user by ID (admin only)
  *     tags: [Users]
@@ -160,7 +160,7 @@ router.put("/:id", checkAuth, authorizeRoles("admin"), updateUserById);
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   delete:
  *     summary: Delete a user by ID (admin only)
  *     tags: [Users]
@@ -182,7 +182,7 @@ router.delete("/:id", checkAuth, authorizeRoles("admin"), deleteUserById);
 
 /**
  * @swagger
- * /users/create:
+ * /api/users/create:
  *   post:
  *     summary: Create a new user (admin only)
  *     tags: [Users]
@@ -223,7 +223,7 @@ router.post("/create", checkAuth, authorizeRoles("admin"), createNewUser);
 
 /**
  * @swagger
- * /users/me:
+ * /api/users/me:
  *   get:
  *     summary: Get my profile (logged in user)
  *     tags: [Users]
@@ -237,7 +237,7 @@ router.get("/me", checkAuth, getMyProfile);
 
 /**
  * @swagger
- * /users/me:
+ * /api/users/me:
  *   put:
  *     summary: Update my profile (logged in user)
  *     tags: [Users]
@@ -264,7 +264,7 @@ router.put("/me", checkAuth, updateMyProfile);
 
 /**
  * @swagger
- * /users/me:
+ * /api/users/me:
  *   delete:
  *     summary: Delete my own account
  *     tags: [Users]
