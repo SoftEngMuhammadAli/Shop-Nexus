@@ -40,7 +40,7 @@ export const getAllProducts = catchAsyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Products retrieved successfully (from cache)",
-      data: JSON.parse(cachedProducts),
+      data: cachedProducts,
     });
   }
 

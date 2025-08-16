@@ -89,7 +89,7 @@ export const loginUser = catchAsyncHandler(async (req, res) => {
 
   if (cachedUser) {
     console.log("User retrieved from Redis");
-    user = JSON.parse(cachedUser);
+    user = cachedUser;
   } else {
     user = await User.findOne({ email }).select("+password");
     if (user) {

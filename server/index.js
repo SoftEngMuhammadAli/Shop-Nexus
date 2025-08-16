@@ -10,6 +10,7 @@ import setupSwagger from "./swagger.js";
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
 import productRouter from "./routers/productRouter.js";
+import blogRouter from "./routers/blogRouter.js";
 
 dotenv.config();
 
@@ -61,6 +62,7 @@ setupSwagger(app);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
+app.use("/api/blogs", blogRouter);
 
 // Connect to DB
 connectToDatabase(process.env.MONGODB_URI);
