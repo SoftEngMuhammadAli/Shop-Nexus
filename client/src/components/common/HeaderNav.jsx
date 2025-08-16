@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction } from "../../features/authSlice";
+import { CiMenuFries } from "react-icons/ci";
+import { FaRegWindowClose } from "react-icons/fa";
 
 const HeaderNav = () => {
   const { isAuthenticated, logout } = useAuth();
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -19,104 +22,119 @@ const HeaderNav = () => {
     navigate("/login");
   };
 
+  // Build links based on role
+  const getLinks = () => {
+    if (!isAuthenticated) {
+      return [
+        { to: "/login", label: "Login" },
+        { to: "/register", label: "Register" },
+      ];
+    }
+
+    if (user?.userRole === "user") {
+      return [
+        { to: "/home", label: "Home" },
+        { to: "/products", label: "Products" },
+        { to: "/cart", label: "Cart" },
+        { to: "/orders", label: "Orders" },
+      ];
+    }
+
+    if (user?.userRole === "admin") {
+      return [
+        { to: "/admin-dashboard", label: "Dashboard" },
+        { to: "/manage-users", label: "Manage Users" },
+        { to: "/manage-products", label: "Manage Products" },
+        { to: "/manage-orders", label: "Manage Orders" },
+        { to: "/manage-blogs", label: "Manage Blogs" },
+        { to: "/settings", label: "Settings" },
+      ];
+    }
+
+    if (user?.userRole === "super-admin") {
+      return [
+        { to: "/super-admin-dashboard", label: "Super Admin Dashboard" },
+        { to: "/admin-dashboard", label: "Admin Panel" },
+      ];
+    }
+
+    return [];
+  };
+
   return (
-    <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
-      {/* Logo or Home Link */}
-      {user && isAuthenticated && user.userRole === "user" && (
-        <Link to="/home" className="text-xl font-bold">
-          🛒 E-Commerce
-        </Link>
-      )}
-
-      {user && isAuthenticated && user.userRole === "admin" && (
-        <Link to="/admin-dashboard" className="text-xl font-bold">
+    <nav className="bg-blue-600 text-white p-4 flex justify-between items-center relative">
+      {/* Logo */}
+      {user && isAuthenticated && (
+        <Link
+          to={
+            user.userRole === "user"
+              ? "/home"
+              : user.userRole === "admin"
+              ? "/admin-dashboard"
+              : "/super-admin-dashboard"
+          }
+          className="text-xl font-bold"
+        >
           🛒 ShopNexus
         </Link>
       )}
 
-      {user && isAuthenticated && user.userRole === "super-admin" && (
-        <Link to="/super-admin-dashboard" className="text-xl font-bold">
-          🛒 ShopNexus
-        </Link>
-      )}
-
-      <div className="flex gap-4 items-center">
-        {/* Public Links */}
-        {!isAuthenticated && (
-          <>
-            <Link to="/login" className="hover:underline">
-              Login
-            </Link>
-            <Link to="/register" className="hover:underline">
-              Register
-            </Link>
-          </>
-        )}
-
-        {/* User Links */}
-        {isAuthenticated && user.userRole === "user" && (
-          <>
-            <Link to="/home" className="hover:underline">
-              Home
-            </Link>
-            <Link to="/products" className="hover:underline">
-              Products
-            </Link>
-            <Link to="/cart" className="hover:underline">
-              Cart
-            </Link>
-            <Link to="/orders" className="hover:underline">
-              Orders
-            </Link>
-          </>
-        )}
-
-        {/* Admin Links */}
-        {isAuthenticated && user.userRole === "admin" && (
-          <>
-            <Link to="/admin-dashboard" className="hover:underline">
-              Dashboard
-            </Link>
-            <Link to="/manage-users" className="hover:underline">
-              Manage Users
-            </Link>
-            <Link to="/manage-products" className="hover:underline">
-              Manage Products
-            </Link>
-            <Link to="/manage-orders" className="hover:underline">
-              Manage Orders
-            </Link>
-            <Link to="/manage-blogs" className="hover:underline">
-              Manage Blogs
-            </Link>
-            <Link to="/settings" className="hover:underline">
-              Settings
-            </Link>
-          </>
-        )}
-
-        {/* Super Admin Links */}
-        {isAuthenticated && user.userRole === "superadmin" && (
-          <>
-            <Link to="/admin-dashboard" className="hover:underline">
-              Admin Dashboard
-            </Link>
-            <Link to="/super-admin-dashboard" className="hover:underline">
-              Super Admin
-            </Link>
-          </>
-        )}
-
-        {/* Logout Button */}
+      {/* Desktop Links */}
+      <div className="hidden md:flex gap-4 items-center">
+        {getLinks().map((link) => (
+          <Link key={link.to} to={link.to} className="hover:underline">
+            {link.label}
+          </Link>
+        ))}
         {isAuthenticated && (
           <button
             onClick={handleLogout}
-            className="ml-2 bg-white text-blue-600 px-3 py-1 rounded"
+            className="ml-2 bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100"
           >
             Logout
           </button>
         )}
       </div>
+
+      {/* Mobile Hamburger */}
+      <div className="md:hidden">
+        <button onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? (
+            <FaRegWindowClose size={28} />
+          ) : (
+            <CiMenuFries size={28} />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Dropdown */}
+      {menuOpen && (
+        <div className="absolute top-16 right-0 bg-blue-600 w-56 p-4 rounded-lg shadow-lg md:hidden">
+          <div className="flex flex-col gap-3">
+            {getLinks().map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="hover:underline"
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMenuOpen(false);
+                }}
+                className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

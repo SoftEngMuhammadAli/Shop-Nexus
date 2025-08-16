@@ -8,22 +8,24 @@ import {
 } from "react-router-dom";
 
 // Pages
-import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminDashboardPage from "../pages/admin/AdminDashboard";
 import LoginPage from "../pages/auth/Login";
 import RegisterPage from "../pages/auth/Register";
+import NotFound from "../pages/NotFound";
+import HomePage from "../pages/HomePage";
+import ManageUsersPage from "../pages/admin/users/ManageUsers";
+import ManageProductsPage from "../pages/admin/products/ManageProducts";
 
 // Wrappers
 import ProtectedRouteWrapper from "../routes/ProtectedRouteWrapper";
-import NotFound from "../pages/NotFound";
 import RoleProtectedRouteWrapper from "../routes/RoleBaseRouteWrapper";
-import HomePage from "../pages/HomePage";
-import ManageUsers from "../pages/admin/users/ManageUsers";
+import HeaderNav from "../components/common/HeaderNav";
+import ManageBlogsPage from "../pages/admin/blogs/ManageBlogs";
 
-// Layout
 const MainLayout = () => {
   return (
     <div>
-      {/* You can add common layout components here like header, sidebar, etc. */}
+      <HeaderNav />
       <Outlet />
     </div>
   );
@@ -50,13 +52,15 @@ export const AppRoutes = () => {
             <Route
               element={<RoleProtectedRouteWrapper allowedRoles={["admin"]} />}
             >
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/manage-users" element={<ManageUsers />} />
+              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+              <Route path="/manage-users" element={<ManageUsersPage />} />
+              <Route path="/manage-products" element={<ManageProductsPage />} />
+              <Route path="/manage-blogs" element={<ManageBlogsPage />} />
             </Route>
           </Route>
         </Route>
 
-        {/* Fallback route */}
+        {/* Fallback */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
