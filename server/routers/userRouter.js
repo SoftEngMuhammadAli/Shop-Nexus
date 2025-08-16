@@ -1,25 +1,63 @@
-import express from "express";
 import {
   getUserProfileById,
   getUserProfiles,
   getUserProfileByName,
   getUserProfileByUserRole,
-  createNewUser,
   updateUserById,
   deleteUserById,
+  createNewUser,
   getMyProfile,
   updateMyProfile,
   deleteMyAccount,
 } from "../controllers/userController.js";
+
+import express from "express";
 import { authorizeRoles, checkAuth } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// ==========================
-// GET Users
-// ==========================
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management APIs
+ */
+
+/**
+ * @swagger
+ * /users/all:
+ *   get:
+ *     summary: Get all users (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ */
 router.get("/all", checkAuth, authorizeRoles("admin"), getUserProfiles);
 
+/**
+ * @swagger
+ * /users/profile/{id}:
+ *   get:
+ *     summary: Get user profile by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User profile retrieved
+ *       404:
+ *         description: User not found
+ */
 router.get(
   "/profile/:id",
   checkAuth,
@@ -27,6 +65,27 @@ router.get(
   getUserProfileById
 );
 
+/**
+ * @swagger
+ * /users/profileByName/{name}:
+ *   get:
+ *     summary: Get users by name
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Username
+ *     responses:
+ *       200:
+ *         description: Users retrieved
+ *       404:
+ *         description: No users found
+ */
 router.get(
   "/profileByName/:name",
   checkAuth,
@@ -34,6 +93,27 @@ router.get(
   getUserProfileByName
 );
 
+/**
+ * @swagger
+ * /users/profileByRole/{userRole}:
+ *   get:
+ *     summary: Get users by role
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userRole
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User role (e.g., admin, user)
+ *     responses:
+ *       200:
+ *         description: Users with given role retrieved
+ *       404:
+ *         description: No users found with role
+ */
 router.get(
   "/profileByRole/:userRole",
   checkAuth,
@@ -41,31 +121,159 @@ router.get(
   getUserProfileByUserRole
 );
 
-// ==========================
-// CREATE User (admin only)
-// ==========================
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update a user by ID (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               userRole:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       404:
+ *         description: User not found
+ */
+router.put("/:id", checkAuth, authorizeRoles("admin"), updateUserById);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
+router.delete("/:id", checkAuth, authorizeRoles("admin"), deleteUserById);
+
+/**
+ * @swagger
+ * /users/create:
+ *   post:
+ *     summary: Create a new user (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               userRole:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid input
+ */
 router.post("/create", checkAuth, authorizeRoles("admin"), createNewUser);
 
-// ==========================
-// UPDATE User
-// ==========================
-router.put("/update/:id", checkAuth, authorizeRoles("admin"), updateUserById);
+/**
+ * ========================
+ * USER SELF-SERVICE ROUTES
+ * ========================
+ */
 
-// ==========================
-// DELETE User
-// ==========================
-router.delete(
-  "/delete/:id",
-  checkAuth,
-  authorizeRoles("admin"),
-  deleteUserById
-);
-
-// ==========================
-// Self-Service Routes
-// ==========================
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Get my profile (logged in user)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved
+ */
 router.get("/me", checkAuth, getMyProfile);
-router.put("/me/update", checkAuth, updateMyProfile);
-router.delete("/me/delete", checkAuth, deleteMyAccount);
+
+/**
+ * @swagger
+ * /users/me:
+ *   put:
+ *     summary: Update my profile (logged in user)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.put("/me", checkAuth, updateMyProfile);
+
+/**
+ * @swagger
+ * /users/me:
+ *   delete:
+ *     summary: Delete my own account
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ */
+router.delete("/me", checkAuth, deleteMyAccount);
 
 export default router;
