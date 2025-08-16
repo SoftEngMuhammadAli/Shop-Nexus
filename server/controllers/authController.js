@@ -5,6 +5,7 @@ import {
   hashPassword,
   comparePasswords,
 } from "../utils/authHelpers.js";
+import redis from "../utils/redisClient.js";
 
 // ==========================
 // REGISTER USER
@@ -42,6 +43,11 @@ export const registerUser = catchAsyncHandler(async (req, res) => {
 
   const token = generateToken(newUser._id);
 
+  // Store session in Redis (so we can validate quickly later)
+  await redis.set(`user:${newUser._id}`, JSON.stringify(newUser), {
+    ex: 60 * 60,
+  }); // 1 hr cache
+
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -77,7 +83,22 @@ export const loginUser = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  // Check cache first
+  let cachedUser = await redis.get(`userByEmail:${email}`);
+  let user;
+
+  if (cachedUser) {
+    console.log("User retrieved from Redis");
+    user = JSON.parse(cachedUser);
+  } else {
+    user = await User.findOne({ email }).select("+password");
+    if (user) {
+      await redis.set(`userByEmail:${email}`, JSON.stringify(user), {
+        ex: 300,
+      }); // cache for 5 min
+    }
+  }
+
   if (!user) {
     return res.status(401).json({
       success: false,
@@ -95,6 +116,9 @@ export const loginUser = catchAsyncHandler(async (req, res) => {
 
   const token = generateToken(user._id);
   user.password = undefined;
+
+  // Track session in Redis
+  await redis.set(`session:${user._id}`, token, { ex: 7 * 24 * 60 * 60 }); // 7 days
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -121,6 +145,13 @@ export const loginUser = catchAsyncHandler(async (req, res) => {
 // LOGOUT USER
 // ==========================
 export const logoutUser = catchAsyncHandler(async (req, res) => {
+  const token = req.cookies.token;
+
+  if (token) {
+    // Blacklist token in Redis so it can’t be reused
+    await redis.set(`blacklist:${token}`, "true", { ex: 7 * 24 * 60 * 60 }); // expires after 7 days
+  }
+
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "strict",

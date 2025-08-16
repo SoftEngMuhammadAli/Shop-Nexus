@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import { connectToDatabase } from "./config/database.js";
+import setupSwagger from "./swagger.js";
 // API Routers
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
@@ -53,6 +54,8 @@ app.get("/", (_req, res) => {
     uptime: process.uptime(),
   });
 });
+
+setupSwagger(app);
 
 // API Routes
 app.use("/api/auth", authRouter);
