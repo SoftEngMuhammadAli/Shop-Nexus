@@ -45,7 +45,7 @@ export const getUserProfiles = catchAsyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "All user profiles retrieved successfully (from cache)",
-      data: JSON.parse(cachedUsers),
+      data: cachedUsers,
     });
   }
 
