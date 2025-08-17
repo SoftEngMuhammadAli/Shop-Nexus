@@ -44,6 +44,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Home Route
 app.get("/", (_req, res) => {
+  let documentationUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://shop-nexus-snmp.onrender.com/api/api-docs"
+      : "http://localhost:5000/api/api-docs";
+
   res.render("documentation", {
     data: {
       greeting: "Hello World!",
@@ -51,7 +56,7 @@ app.get("/", (_req, res) => {
       serverTime: new Date().toISOString(),
       version: process.env.npm_package_version || "1.0.0",
     },
-    documentation: "https://www.website.com",
+    documentation: documentationUrl,
     uptime: process.uptime(),
   });
 });
@@ -65,7 +70,9 @@ app.use("/api/products", productRouter);
 app.use("/api/blogs", blogRouter);
 
 // Connect to DB
-connectToDatabase(process.env.MONGODB_URI);
+connectToDatabase(
+  process.env.MONGODB_URI || "mongodb://localhost:27017/shop-nexus"
+);
 
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
