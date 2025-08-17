@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../services/apiServices";
 
-const useFetchData = (endpoint, options = {}) => {
+export const useFetchData = (endpoint, options = {}) => {
   const [data, setData] = useState(options.initialData || []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,5 +36,3 @@ const useFetchData = (endpoint, options = {}) => {
 
   return { data, loading, error };
 };
-
-export default useFetchData;

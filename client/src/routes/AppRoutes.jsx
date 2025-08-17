@@ -11,7 +11,7 @@ import {
 import AdminDashboardPage from "../pages/admin/AdminDashboard";
 import ManageUsersPage from "../pages/admin/users/ManageUsers";
 import ManageProductsPage from "../pages/admin/products/ManageProducts";
-import ManageBlogsPage from "../pages/admin/blogs/ManageBlogs";
+import { ManageBlogsPage } from "../pages/admin/blogs/ManageBlogs";
 import HomePage from "../pages/HomePage";
 import ProductsPage from "../pages/user/products/ProductsPage";
 import LoginPage from "../pages/auth/Login";
@@ -25,6 +25,9 @@ import RoleProtectedRouteWrapper from "../routes/RoleBaseRouteWrapper";
 import CartPage from "../pages/user/cart/CartPage";
 import CheckoutPage from "../pages/user/cart/CheckOutPage";
 import OrderPage from "../pages/user/orders/OrderPage";
+import AdminSettingsPage from "../pages/admin/settings/AdminSettingsPage";
+import CreateProductPage from "../pages/admin/products/CreateProduct";
+import { CreateBlogPage } from "../pages/admin/blogs/CreateBlog";
 
 // Layout that wraps protected routes
 const MainLayout = () => (
@@ -52,16 +55,35 @@ export const AppRoutes = () => (
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/orders" element={<OrderPage />} />
+          <Route path="/manage-orders" element={<OrderPage />} />
+          <Route path="/settings" element={<AdminSettingsPage />} />
 
           {/* Admin-only routes */}
           <Route
             element={<RoleProtectedRouteWrapper allowedRoles={["admin"]} />}
           >
-            <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-            <Route path="/manage-users" element={<ManageUsersPage />} />
-            <Route path="/manage-products" element={<ManageProductsPage />} />
-            <Route path="/manage-blogs" element={<ManageBlogsPage />} />
+            {/* Admin Routers */}
+            <Route
+              path="/home/admin-dashboard"
+              element={<AdminDashboardPage />}
+            />
+
+            {/* User Routers for Admin */}
+            <Route path="/admin/manage-users" element={<ManageUsersPage />} />
+
+            {/* Product Routers for Admin */}
+            <Route
+              path="/admin/manage-products"
+              element={<ManageProductsPage />}
+            />
+            <Route
+              path="/admin/create-product"
+              element={<CreateProductPage />}
+            />
+
+            {/* Blogs Router for Admin */}
+            <Route path="/admin/blogs/get-all" element={<ManageBlogsPage />} />
+            <Route path="/admin/blogs/create" element={<CreateBlogPage />} />
           </Route>
         </Route>
       </Route>

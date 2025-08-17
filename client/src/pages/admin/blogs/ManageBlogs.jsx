@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "../../../features/blogSlice";
 
-const ManageBlogsPage = () => {
+export const ManageBlogsPage = () => {
   const dispatch = useDispatch();
   const { items, loading, error, page, totalPages } = useSelector(
     (state) => state.blogs
@@ -129,5 +129,3 @@ const ManageBlogsPage = () => {
     </div>
   );
 };
-
-export default ManageBlogsPage;

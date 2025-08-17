@@ -7,7 +7,7 @@ const NotFound = () => {
 
   const getHomePath = () => {
     if (!user) return "/login";
-    if (user.userRole === "admin") return "/admin-dashboard";
+    if (user.userRole === "admin") return "/home/admin-dashboard";
     if (user.userRole === "user") return "/home";
     return "/";
   };

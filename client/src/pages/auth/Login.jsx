@@ -32,7 +32,7 @@ const LoginPage = () => {
       const role = result?.user?.userRole;
 
       if (role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/home/admin-dashboard");
       } else if (role === "user") {
         navigate("/home");
       } else if (role === "super-admin") {

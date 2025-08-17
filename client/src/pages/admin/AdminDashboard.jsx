@@ -1,53 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFetchData } from "../../hooks/useCustomHook";
+import { AdminDashboardStatsCard } from "../../components/admin/AdminDashboardCard";
+
+// React Icons
+import { FiMenu } from "react-icons/fi";
+import AdminDashboardSideBar from "../../components/admin/AdminDashboardSideBar";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data: users, loading: usersLoading } = useFetchData(
+    `${import.meta.env.VITE_API_BASE_URL}/api/users/all`
+  );
+
+  const { data: products, loading: productsLoading } = useFetchData(
+    `${import.meta.env.VITE_API_BASE_URL}/api/products/all`
+  );
+
+  const { data: orders, loading: ordersLoading } = useFetchData(
+    `${import.meta.env.VITE_API_BASE_URL}/api/orders/all`
+  );
+
   return (
     <section className="flex min-h-screen bg-gray-100">
+      {/* AdminSideBar */}
+      <AdminDashboardSideBar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
+
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6">
-          Admin Dashboard
-        </h1>
+        {/* Topbar */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-blue-700">Admin Dashboard</h1>
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden text-blue-700"
+          >
+            <FiMenu size={26} />
+          </button>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {["Total Users", "Products", "Orders"].map((title, idx) => (
-            <div key={idx} className="bg-white shadow-md p-6 rounded-xl">
-              <h2 className="text-lg font-semibold text-gray-600">{title}</h2>
-              <p className="text-2xl font-bold text-blue-600 mt-2">
-                {idx === 0 ? 150 : idx === 1 ? 320 : 89}
-              </p>
-            </div>
-          ))}
-        </div>
+          <AdminDashboardStatsCard
+            title="Total Users"
+            count={users?.length}
+            loading={usersLoading}
+          />
 
-        {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-xl shadow-md mb-10">
-          <h3 className="text-xl font-bold text-gray-700 mb-4">
-            Quick Actions
-          </h3>
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => navigate("/manage-users")}
-              className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
-            >
-              Manage Users
-            </button>
-            <button
-              onClick={() => navigate("/create-product")}
-              className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition"
-            >
-              Add Product
-            </button>
-            <button
-              onClick={() => navigate("/view-orders")}
-              className="bg-yellow-500 text-white px-5 py-2 rounded hover:bg-yellow-600 transition"
-            >
-              View Orders
-            </button>
-          </div>
+          <AdminDashboardStatsCard
+            title="Total Products"
+            count={products?.length}
+            loading={productsLoading}
+          />
+
+          <AdminDashboardStatsCard
+            title="Total Orders"
+            count={orders?.length}
+            loading={ordersLoading}
+          />
         </div>
 
         {/* Recently Added Products */}
