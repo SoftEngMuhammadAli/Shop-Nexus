@@ -82,7 +82,17 @@ app.use("/api/blogs", blogRouter);
 // Connect to DB
 connectToDatabase(
   process.env.MONGODB_URI || "mongodb://localhost:27017/shop-nexus"
-);
+)
+  .then(() => {
+    if (dbUri.includes("localhost") || dbUri.includes("127.0.0.1")) {
+      console.log("✅ Connected to MongoDB (Local Database)");
+    } else {
+      console.log("✅ Connected to MongoDB (Production/Remote Cluster)");
+    }
+  })
+  .catch((err) => {
+    console.error("❌ Error while connecting to MongoDB:", err.message);
+  });
 
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
