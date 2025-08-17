@@ -1,5 +1,10 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const swaggerOptions = {
   definition: {
@@ -8,19 +13,19 @@ const swaggerOptions = {
       title: "ShopNexus API",
       version: "1.0.0",
       description: `
-        🚀 **ShopNexus API Documentation**
+🚀 **ShopNexus API Documentation**
 
-        This API provides authentication, user management, and product management 
-        endpoints for the ShopNexus platform.
+This API provides authentication, user management, product management, and blog endpoints for the ShopNexus platform.
 
-        - 🔑 JWT-based authentication
-        - 👥 User & role management
-        - 🛒 Product CRUD operations
+- 🔑 JWT-based authentication  
+- 👥 User & role management  
+- 🛒 Product CRUD operations  
+- 📰 Blog posts management  
       `,
-      termsOfService: "http://localhost:5000/terms",
+      termsOfService: "https://shop-nexus-snmp.onrender.com/terms",
       contact: {
         name: "ShopNexus Support",
-        url: "http://localhost:5000/support",
+        url: "https://shop-nexus-snmp.onrender.com/support",
         email: "support@shopnexus.com",
       },
       license: {
@@ -34,18 +39,18 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:5000/",
+        url: "http://localhost:5000",
         description: "Local Development Server",
       },
       {
-        url: "https://api.shopnexus.com/",
+        url: "https://shop-nexus-snmp.onrender.com",
         description: "Production Server",
       },
     ],
     tags: [
       {
         name: "Auth",
-        description: "Authentication related routes (Login, Register, Logout)",
+        description: "Authentication routes (Register, Login, Logout)",
       },
       {
         name: "Users",
@@ -54,6 +59,10 @@ const swaggerOptions = {
       {
         name: "Products",
         description: "Product catalog CRUD operations",
+      },
+      {
+        name: "Blogs",
+        description: "Blog CRUD operations",
       },
     ],
     components: {
@@ -93,11 +102,16 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./routers/*.js"], // JSDoc annotations inside your routers
+  // Use absolute path for router JSDoc comments
+  apis: [path.join(__dirname, "routers/*.js")],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 export default (app) => {
-  app.use("/api/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use(
+    "/api/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, { explorer: true })
+  );
 };
