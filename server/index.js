@@ -80,9 +80,9 @@ app.use("/api/products", productRouter);
 app.use("/api/blogs", blogRouter);
 
 // Connect to DB
-connectToDatabase(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/shop-nexus"
-)
+const dbUri = process.env.MONGODB_URI || "mongodb://localhost:27017/shop-nexus";
+
+connectToDatabase(dbUri)
   .then(() => {
     if (dbUri.includes("localhost") || dbUri.includes("127.0.0.1")) {
       console.log("✅ Connected to MongoDB (Local Database)");
