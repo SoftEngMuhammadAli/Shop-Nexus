@@ -2,12 +2,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../services/apiServices";
 
-// ✅ Fetch blogs
+// ✅ Fetch blogs (body instead of query params)
 export const fetchBlogs = createAsyncThunk(
   "blogs/fetchBlogs",
-  async (data, thunkAPI) => {
+  async (filters = {}, thunkAPI) => {
     try {
-      const response = await axiosInstance.get("/api/blogs", data);
+      const response = await axiosInstance.post("/api/blogs/list", filters, {
+        withCredentials: true,
+      });
       return response.data.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
@@ -22,21 +24,74 @@ export const createBlog = createAsyncThunk(
   "blogs/createBlog",
   async (blogData, thunkAPI) => {
     try {
+      const token = thunkAPI.getState().auth?.token;
       const response = await axiosInstance.post(
         "/api/blogs/create-blog",
         blogData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "application/json",
           },
           withCredentials: true,
         }
       );
-      // If response.data exists, then response shape is { data: {...} }
-      return response.data.data; // Access the actual payload inside "data"
+      return response.data.data;
+    } catch (err) {
+      let errorMessage = "Failed to create blog";
+
+      if (err.response) {
+        // Handle specific error messages from server
+        errorMessage = err.response.data.message || errorMessage;
+
+        // If 403, add more context
+        if (err.response.status === 403) {
+          errorMessage = "Permission denied: " + errorMessage;
+        }
+      }
+
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// ✅ Update blog
+export const updateBlog = createAsyncThunk(
+  "blogs/updateBlog",
+  async ({ id, updates }, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth?.token;
+
+      const response = await axiosInstance.put(`/api/blogs/${id}`, updates, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        withCredentials: true,
+      });
+
+      return response.data.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
-        err.response?.data?.message || "Failed to create blog"
+        err.response?.data?.message || "Failed to update blog"
+      );
+    }
+  }
+);
+
+// ✅ Delete blog
+export const deleteBlog = createAsyncThunk(
+  "blogs/deleteBlog",
+  async (id, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth?.token;
+
+      await axiosInstance.delete(`/api/blogs/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        withCredentials: true,
+      });
+
+      return id;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to delete blog"
       );
     }
   }
@@ -81,13 +136,25 @@ const blogSlice = createSlice({
       })
       .addCase(createBlog.fulfilled, (state, action) => {
         state.loading = false;
-        state.items.unshift(action.payload); // add new blog at top
+        state.items.unshift(action.payload);
         state.success = true;
       })
       .addCase(createBlog.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = false;
+      })
+
+      // Update
+      .addCase(updateBlog.fulfilled, (state, action) => {
+        state.items = state.items.map((blog) =>
+          blog._id === action.payload._id ? action.payload : blog
+        );
+      })
+
+      // Delete
+      .addCase(deleteBlog.fulfilled, (state, action) => {
+        state.items = state.items.filter((blog) => blog._id !== action.payload);
       });
   },
 });

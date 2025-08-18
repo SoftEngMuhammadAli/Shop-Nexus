@@ -13,7 +13,11 @@ export const ManageBlogsPage = () => {
   }, [dispatch]);
 
   const handleSearch = () => {
-    dispatch(fetchBlogs({ search }));
+    if (search.trim()) {
+      dispatch(fetchBlogs({ search }));
+    } else {
+      dispatch(fetchBlogs({}));
+    }
   };
 
   return (

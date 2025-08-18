@@ -1,77 +1,79 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import dotenv from "dotenv";
-dotenv.config();
+import ErrorResponse from "../utils/errorResponse.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// Middleware to check authentication
-async function checkAuth(req, res, next) {
+export const checkAuth = async (req, res, next) => {
   let token;
 
-  const authorization = req.headers.authorization;
-  if (authorization && authorization.startsWith("Bearer ")) {
-    token = authorization.split("Bearer ")[1];
+  // Check Authorization header first
+  if (req.headers.authorization?.startsWith("Bearer")) {
+    token = req.headers.authorization.split(" ")[1];
   }
-
-  if (!token && req.cookies?.token) {
+  // Fallback to cookies if needed
+  else if (req.cookies?.token) {
     token = req.cookies.token;
   }
 
   if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized: No token provided",
-    });
+    return next(
+      new ErrorResponse(
+        "Not authorized to access this route - no token provided",
+        401
+      )
+    );
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id)
+      .select("-password -__v")
+      .lean();
+
     if (!user) {
-      return res.status(401).json({ message: "Invalid token: user not found" });
+      return next(new ErrorResponse("No user found with this ID", 404));
     }
 
+    if (!user.isActive) {
+      return next(new ErrorResponse("User account is inactive", 403));
+    }
+
+    // Attach user to request
     req.user = user;
+
+    // Continue to next middleware
     next();
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ message: "Session Expired" });
+  } catch (err) {
+    // Handle different JWT errors specifically
+    let message = "Not authorized to access this route";
+
+    if (err.name === "TokenExpiredError") {
+      message = "Session expired - please log in again";
+    } else if (err.name === "JsonWebTokenError") {
+      message = "Invalid token";
     }
-    return res
-      .status(401)
-      .json({ message: "Invalid Token", error: error.message });
+
+    return next(new ErrorResponse(message, 401));
   }
-}
+};
 
-// Authorize roles middleware
-function authorizeRoles(...rolesAuthorization) {
+export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    try {
-      const user = req.user;
-
-      if (!user) {
-        return res.status(401).json({
-          message: "Unauthorized: No user found in request",
-        });
-      }
-
-      if (!rolesAuthorization.includes(user.userRole)) {
-        return res.status(403).json({
-          errorType: "Authorization Error",
-          details: `Access denied for role '${user.userRole}'.`,
-          allowedOnlyFor: rolesAuthorization,
-        });
-      }
-
-      next();
-    } catch (error) {
-      return res.status(500).json({
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    if (!roles.includes(req.user.userRole)) {
+      return next(
+        new ErrorResponse(
+          `Role '${req.user.userRole}' is not authorized to access ${req.originalUrl}`,
+          403
+        )
+      );
     }
+    next();
   };
-}
+};
 
-export { checkAuth, authorizeRoles };
+// // Optional: Middleware to set permissions in response locals
+// export const setPermissions = (req, res, next) => {
+//   res.locals.user = req.user;
+//   res.locals.isAdmin = req.user?.userRole === "admin";
+//   next();
+// };

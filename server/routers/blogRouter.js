@@ -88,12 +88,7 @@ router.get("/", checkAuth, getBlogs);
  *       201:
  *         description: Blog created
  */
-router.post(
-  "/create-blog",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  createBlog
-);
+router.post("/create-blog", checkAuth, authorizeRoles("admin"), createBlog);
 
 /**
  * @swagger

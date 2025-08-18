@@ -31,11 +31,13 @@ export const CreateBlogPage = () => {
 
     const blogData = {
       ...formData,
-      tags: formData.tags.split(",").map((tag) => tag.trim()),
+      tags: formData.tags
+        ? formData.tags.split(",").map((tag) => tag.trim())
+        : [],
     };
 
     dispatch(createBlog(blogData));
-    console.log("Blog Data:", formData);
+    console.log("Blog Data Sent:", blogData);
 
     // Reset form
     setFormData({
