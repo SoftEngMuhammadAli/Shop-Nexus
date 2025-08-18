@@ -1,4 +1,3 @@
-// routes/blogRoutes.js
 import { Router } from "express";
 import {
   createBlog,
@@ -21,11 +20,10 @@ const router = Router();
  *   schemas:
  *     Blog:
  *       type: object
- *       required: [title, slug, content, author]
+ *       required: [title, content, author]
  *       properties:
  *         _id: { type: string }
  *         title: { type: string }
- *         slug: { type: string }
  *         content: { type: string }
  *         author: { type: string }
  *         tags:
@@ -34,7 +32,6 @@ const router = Router();
  *         coverImageUrl: { type: string }
  *         status: { type: string, enum: [draft, published] }
  *         readingTime: { type: number }
- *         publishedAt: { type: string, format: date-time }
  *         createdAt: { type: string, format: date-time }
  *         updatedAt: { type: string, format: date-time }
  *     Error:
@@ -48,36 +45,43 @@ const router = Router();
  * @swagger
  * /api/blogs:
  *   get:
- *     summary: Get all blogs (no pagination)
+ *     summary: Get all blogs
  *     tags: [Blogs]
- *     parameters:
- *       - in: query
- *         name: status
- *         schema: { type: string, enum: [draft, published] }
- *       - in: query
- *         name: tag
- *         schema: { type: string, example: "nodejs" }
- *       - in: query
- *         name: search
- *         schema: { type: string, example: "redis" }
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of blogs
+ *         description: List of all blogs
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Blog'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Blog'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get("/", checkAuth, getBlogs);
 
 /**
  * @swagger
- * /api/blogs:
+ * /api/blogs/create-blog:
  *   post:
- *     summary: Create a blog
+ *     summary: Create a new blog
  *     tags: [Blogs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -86,29 +90,49 @@ router.get("/", checkAuth, getBlogs);
  *             $ref: '#/components/schemas/Blog'
  *     responses:
  *       201:
- *         description: Blog created
+ *         description: Blog created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Blog'
+ *       400:
+ *         description: Bad request - missing fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post("/create-blog", checkAuth, authorizeRoles("admin"), createBlog);
 
 /**
  * @swagger
- * /api/blogs/{idOrSlug}:
+ * /api/blogs/{id}:
  *   get:
- *     summary: Get a single blog by id or slug
+ *     summary: Get a single blog by ID
  *     tags: [Blogs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: idOrSlug
+ *         name: id
  *         schema: { type: string }
  *         required: true
- *         description: Mongo ObjectId or slug
+ *         description: MongoDB ObjectId of the blog
  *     responses:
  *       200:
  *         description: Blog found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Blog'
  *       404:
- *         description: Not found
+ *         description: Blog not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.get("/:idOrSlug", checkAuth, getBlog);
+router.get("/:id", checkAuth, getBlog);
 
 /**
  * @swagger
@@ -116,11 +140,14 @@ router.get("/:idOrSlug", checkAuth, getBlog);
  *   put:
  *     summary: Update a blog
  *     tags: [Blogs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         schema: { type: string }
  *         required: true
+ *         description: MongoDB ObjectId of the blog to update
  *     requestBody:
  *       required: true
  *       content:
@@ -129,9 +156,23 @@ router.get("/:idOrSlug", checkAuth, getBlog);
  *             $ref: '#/components/schemas/Blog'
  *     responses:
  *       200:
- *         description: Blog updated
+ *         description: Blog updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Blog'
+ *       403:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
- *         description: Not found
+ *         description: Blog not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put("/:id", checkAuth, authorizeRoles("admin"), updateBlog);
 
@@ -141,16 +182,28 @@ router.put("/:id", checkAuth, authorizeRoles("admin"), updateBlog);
  *   delete:
  *     summary: Delete a blog
  *     tags: [Blogs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         schema: { type: string }
  *         required: true
+ *         description: MongoDB ObjectId of the blog to delete
  *     responses:
  *       200:
- *         description: Blog deleted
+ *         description: Blog deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 message: { type: string }
+ *       403:
+ *         description: Unauthorized
  *       404:
- *         description: Not found
+ *         description: Blog not found
  */
 router.delete("/:id", checkAuth, authorizeRoles("admin"), deleteBlog);
 

@@ -6,14 +6,13 @@ import redis from "../utils/redisClient.js";
 // CREATE PRODUCT
 // ==========================
 export const createProduct = catchAsyncHandler(async (req, res) => {
-  const { productName, productDescription, productPrice, productQuantity } =
-    req.body;
+  const { name, description, price, quantity } = req.body;
 
   const product = new Product({
-    productName,
-    productDescription,
-    productPrice,
-    productQuantity,
+    name,
+    description,
+    price,
+    quantity,
   });
 
   await product.save();

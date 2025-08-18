@@ -12,7 +12,7 @@ const commentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    text: {
+    commentContent: {
       type: String,
       required: true,
       trim: true,

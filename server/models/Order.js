@@ -9,14 +9,25 @@ const orderSchema = new mongoose.Schema(
         quantity: Number,
       },
     ],
-    totalAmount: Number,
+    totalAmount: {
+      type: Number,
+      required: true,
+      min: [0, "Total amount must be positive"],
+    },
     status: {
       type: String,
       enum: ["pending", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
-    paymentMethod: String,
-    shippingAddress: String,
+    paymentMethod: {
+      type: String,
+      enum: ["credit_card", "paypal", "bank_transfer"],
+      required: true,
+    },
+    shippingAddress: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

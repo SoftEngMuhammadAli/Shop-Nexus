@@ -10,23 +10,15 @@ const blogSchema = new mongoose.Schema(
       minlength: [3, "Title must be at least 3 characters"],
       maxlength: [160, "Title must be at most 160 characters"],
     },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-      lowercase: true,
-      trim: true,
-    },
     content: {
       type: String,
       required: [true, "Content is required"],
       minlength: [10, "Content must be at least 10 characters"],
     },
     author: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: [true, "Author is required"],
-      trim: true,
     },
     tags: {
       type: [String],
@@ -35,7 +27,8 @@ const blogSchema = new mongoose.Schema(
     },
     coverImageUrl: {
       type: String,
-      default: "",
+      default:
+        "https://images.unsplash.com/photo-1752503650851-cbc3f8b00679?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       trim: true,
     },
     status: {
@@ -45,12 +38,11 @@ const blogSchema = new mongoose.Schema(
       index: true,
     },
     readingTime: {
-      type: Number, // minutes
+      type: Number,
       default: 0,
-      min: 0,
-    },
-    publishedAt: {
-      type: Date,
+      min: 1,
+      max: 60,
+      required: true,
     },
   },
   { timestamps: true }

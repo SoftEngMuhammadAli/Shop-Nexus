@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: [true, "Name is required"],
-      minlength: [2, "Name must be at least 2 characters"],
+      minlength: [3, "Name must be at least 3 characters"],
       maxlength: [50, "Name cannot exceed 50 characters"],
     },
     email: {
@@ -68,17 +68,6 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: function (doc, ret) {
-        delete ret.password;
-        delete ret.__v;
-        return ret;
-      },
-    },
-    toObject: {
-      virtuals: true,
-    },
   }
 );
 

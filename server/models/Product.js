@@ -2,22 +2,22 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    productName: {
+    name: {
       type: String,
       required: [true, "Product name is required"],
       trim: true,
     },
-    productDescription: {
+    description: {
       type: String,
       trim: true,
       default: "No description provided",
     },
-    productPrice: {
+    price: {
       type: Number,
       required: [true, "Product price is required"],
       min: [0, "Price must be at least 0"],
     },
-    productQuantity: {
+    quantity: {
       type: Number,
       default: 1,
       min: [1, "Minimum quantity is 1"],
