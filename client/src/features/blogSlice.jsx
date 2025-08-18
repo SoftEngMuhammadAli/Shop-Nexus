@@ -2,17 +2,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../services/apiServices";
 
-// ✅ Fetch blogs (no pagination)
+// ✅ Fetch blogs
 export const fetchBlogs = createAsyncThunk(
   "blogs/fetchBlogs",
-  async ({ status, tag, search } = {}, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      const params = {};
-      if (status) params.status = status;
-      if (tag) params.tag = tag;
-      if (search) params.search = search;
-
-      const response = await axiosInstance.get("/api/blogs", { params });
+      const response = await axiosInstance.get("/api/blogs", data);
       return response.data.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
@@ -27,8 +22,18 @@ export const createBlog = createAsyncThunk(
   "blogs/createBlog",
   async (blogData, thunkAPI) => {
     try {
-      const response = await axiosInstance.post("/api/blogs", blogData);
-      return response.data.data; // Assuming response shape { data: {...} }
+      const response = await axiosInstance.post(
+        "/api/blogs/create-blog",
+        blogData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      // If response.data exists, then response shape is { data: {...} }
+      return response.data.data; // Access the actual payload inside "data"
     } catch (err) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || "Failed to create blog"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../features/authSlice";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -45,7 +46,7 @@ const RegisterPage = () => {
       });
       navigate("/login");
     } catch (err) {
-      alert("Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again.");
       console.error("Registration error:", err);
     } finally {
       setIsSubmitting(false);

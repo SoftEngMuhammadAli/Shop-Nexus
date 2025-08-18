@@ -89,7 +89,7 @@ router.get("/", checkAuth, getBlogs);
  *         description: Blog created
  */
 router.post(
-  "/",
+  "/create-blog",
   checkAuth,
   authorizeRoles(["admin", "super-admin"]),
   createBlog

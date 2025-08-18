@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../features/authSlice";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -31,17 +32,23 @@ const LoginPage = () => {
 
       const role = result?.user?.userRole;
 
-      if (role === "admin") {
-        navigate("/home/admin-dashboard");
-      } else if (role === "user") {
-        navigate("/home");
-      } else if (role === "super-admin") {
-        alert("Super Admin Dashboard is not ready yet!");
-      } else {
-        console.warn("Unknown role or missing role.", result);
+      if (result) {
+        if (role === "admin") {
+          toast.success(`Welcome, You're logged in as ${role}`);
+          navigate("/home/admin-dashboard");
+        } else if (role === "user") {
+          toast.success(`Welcome, You're logged in as ${role}`);
+          navigate("/home");
+        } else if (role === "super-admin") {
+          toast.success(`Welcome, You're logged in as ${role}`);
+          navigate("/home/super-admin-dashboard");
+        } else {
+          toast.error("Unknown role or missing role.");
+        }
       }
-    } catch (err) {
-      console.error("Login failed:", err);
+    } catch (e) {
+      toast.error(`Login failed. ${e.message}`);
+      console.error("Login failed:", e);
     }
   };
 

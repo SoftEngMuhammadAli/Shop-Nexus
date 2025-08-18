@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 // Sample cart data
 const sampleCart = [
@@ -26,7 +27,7 @@ const CheckoutPage = () => {
   );
 
   const handlePlaceOrder = () => {
-    alert("Order placed successfully!");
+    toast.success("Order placed successfully!");
   };
 
   return (

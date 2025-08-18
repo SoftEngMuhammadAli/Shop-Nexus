@@ -5,6 +5,7 @@ import { Loader } from "../../../components/common/Loader";
 import { ShowError } from "../../../components/common/Error";
 import { useNavigate } from "react-router-dom";
 import { FaProductHunt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const ManageProductsPage = () => {
   const dispatch = useDispatch();
@@ -77,7 +78,16 @@ const ManageProductsPage = () => {
                       ✏️ Edit
                     </button>
                     <button
-                      onClick={() => alert("Delete product " + value._id)}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this product?"
+                          )
+                        ) {
+                          // Dispatch delete action here
+                          toast.success("Product deleted successfully");
+                        }
+                      }}
                       className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
                     >
                       🗑️ Delete

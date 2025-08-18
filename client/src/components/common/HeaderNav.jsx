@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction } from "../../features/authSlice";
 import { CiMenuFries } from "react-icons/ci";
 import { FaRegWindowClose } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const HeaderNav = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -18,7 +19,7 @@ const HeaderNav = () => {
     dispatch(logoutAction());
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    alert("Logout Successful!");
+    toast.success("Logged out successfully");
     navigate("/login");
   };
 
