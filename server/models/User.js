@@ -83,7 +83,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes
-userSchema.index({ email: 1 }, { unique: true });
+// userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ userRole: 1 });
 
 export default mongoose.model("User", userSchema);

@@ -133,12 +133,7 @@ router.get("/:idOrSlug", checkAuth, getBlog);
  *       404:
  *         description: Not found
  */
-router.put(
-  "/:id",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  updateBlog
-);
+router.put("/:id", checkAuth, authorizeRoles("admin"), updateBlog);
 
 /**
  * @swagger
@@ -157,11 +152,6 @@ router.put(
  *       404:
  *         description: Not found
  */
-router.delete(
-  "/:id",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  deleteBlog
-);
+router.delete("/:id", checkAuth, authorizeRoles("admin"), deleteBlog);
 
 export default router;

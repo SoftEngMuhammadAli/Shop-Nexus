@@ -13,7 +13,7 @@ const invalidateList = async () => {
 
 // ============ CREATE ============
 export const createBlog = catchAsyncHandler(async (req, res) => {
-  if (!["admin", "super-admin"].includes(req.user.role)) {
+  if (!"admin".includes(req.user.role)) {
     return res.status(403).json({
       success: false,
       message: "You don't have permission to create blogs",

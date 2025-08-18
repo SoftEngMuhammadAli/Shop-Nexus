@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import ErrorResponse from "../utils/errorResponse.js";
 
+// Clean JSON response version of checkAuth
 export const checkAuth = async (req, res, next) => {
   let token;
 
@@ -15,12 +15,10 @@ export const checkAuth = async (req, res, next) => {
   }
 
   if (!token) {
-    return next(
-      new ErrorResponse(
-        "Not authorized to access this route - no token provided",
-        401
-      )
-    );
+    return res.status(401).json({
+      success: false,
+      message: "Not authorized to access this route - no token provided",
+    });
   }
 
   try {
@@ -31,11 +29,17 @@ export const checkAuth = async (req, res, next) => {
       .lean();
 
     if (!user) {
-      return next(new ErrorResponse("No user found with this ID", 404));
+      return res.status(404).json({
+        success: false,
+        message: "No user found with this ID",
+      });
     }
 
     if (!user.isActive) {
-      return next(new ErrorResponse("User account is inactive", 403));
+      return res.status(403).json({
+        success: false,
+        message: "User account is inactive",
+      });
     }
 
     // Attach user to request
@@ -44,7 +48,6 @@ export const checkAuth = async (req, res, next) => {
     // Continue to next middleware
     next();
   } catch (err) {
-    // Handle different JWT errors specifically
     let message = "Not authorized to access this route";
 
     if (err.name === "TokenExpiredError") {
@@ -53,20 +56,29 @@ export const checkAuth = async (req, res, next) => {
       message = "Invalid token";
     }
 
-    return next(new ErrorResponse(message, 401));
+    return res.status(401).json({
+      success: false,
+      message,
+    });
   }
 };
 
 export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.userRole)) {
-      return next(
-        new ErrorResponse(
-          `Role '${req.user.userRole}' is not authorized to access ${req.originalUrl}`,
-          403
-        )
-      );
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
     }
+
+    if (!roles.includes(req.user.userRole)) {
+      return res.status(403).json({
+        success: false,
+        message: `Role '${req.user.userRole}' is not authorized to access this route`,
+      });
+    }
+
     next();
   };
 };

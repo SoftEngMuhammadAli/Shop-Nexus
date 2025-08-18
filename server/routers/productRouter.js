@@ -82,12 +82,7 @@ router.get("/:id", checkAuth, getProductById);
  *       201:
  *         description: Product created successfully
  */
-router.post(
-  "/",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  createProduct
-);
+router.post("/", checkAuth, authorizeRoles("admin"), createProduct);
 
 /**
  * @swagger
@@ -123,12 +118,7 @@ router.post(
  *       404:
  *         description: Product not found
  */
-router.put(
-  "/:id",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  updateProduct
-);
+router.put("/:id", checkAuth, authorizeRoles("admin"), updateProduct);
 
 /**
  * @swagger
@@ -151,11 +141,6 @@ router.put(
  *       404:
  *         description: Product not found
  */
-router.delete(
-  "/:id",
-  checkAuth,
-  authorizeRoles(["admin", "super-admin"]),
-  deleteProduct
-);
+router.delete("/:id", checkAuth, authorizeRoles("admin"), deleteProduct);
 
 export default router;
