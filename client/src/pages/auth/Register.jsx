@@ -37,6 +37,13 @@ const RegisterPage = () => {
         registerUser({ name, email, password })
       ).unwrap();
       console.log("Registration successful:", result);
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      navigate("/login");
     } catch (err) {
       alert("Registration failed. Please try again.");
       console.error("Registration error:", err);

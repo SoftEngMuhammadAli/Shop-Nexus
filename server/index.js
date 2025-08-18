@@ -6,11 +6,13 @@ import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import { connectToDatabase } from "./config/database.js";
 import setupSwagger from "./swagger.js";
-// API Routers
+
+// Routers
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
 import productRouter from "./routers/productRouter.js";
 import blogRouter from "./routers/blogRouter.js";
+import orderRouter from "./routers/orderRouter.js";
 
 dotenv.config();
 
@@ -29,15 +31,10 @@ app.set("views", path.join(__dirname, "template"));
 app.use(
   cors({
     origin: [
-      // Local front-end (Vite React)
-      "http://localhost:5173",
-
-      // Production front-end (Vercel)
-      "https://shopnexus-web.vercel.app",
-
-      // If you host Swagger UI directly on backend domain, include it too:
-      `http://localhost:${port}`, // local swagger UI
-      "https://shop-nexus-snmp.onrender.com", // production swagger UI
+      "http://localhost:5173", // Local frontend
+      "https://shopnexus-web.vercel.app", // Production frontend
+      `http://localhost:${port}`, // Local Swagger
+      "https://shop-nexus-snmp.onrender.com", // Production Swagger
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -48,7 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Static Files (like uploaded images or public assets)
+// Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -71,6 +68,7 @@ app.get("/", (_req, res) => {
   });
 });
 
+// Swagger
 setupSwagger(app);
 
 // API Routes
@@ -78,22 +76,23 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/blogs", blogRouter);
+app.use("/api/orders", orderRouter);
 
-// Connect to DB
-const dbUri = process.env.MONGODB_URI || "mongodb://localhost:27017/shop-nexus";
+// --- Connect to DB first, then start server ---
+const dbUri = process.env.MONGODB_URI;
+
+if (!dbUri) {
+  console.error("❌ MONGODB_URI is not defined in environment variables.");
+  process.exit(1);
+}
 
 connectToDatabase(dbUri)
   .then(() => {
-    if (dbUri.includes("localhost") || dbUri.includes("127.0.0.1")) {
-      console.log("✅ Connected to MongoDB (Local Database)");
-    } else {
-      console.log("✅ Connected to MongoDB (Production/Remote Cluster)");
-    }
+    app.listen(port, () => {
+      console.log(`🚀 Server running at http://localhost:${port}`);
+    });
   })
-  .catch((err) => {
-    console.error("❌ Error while connecting to MongoDB:", err.message);
+  .catch((error) => {
+    console.error(`❌ Failed to connect to MongoDB: ${error.message}`);
+    process.exit(1);
   });
-
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});

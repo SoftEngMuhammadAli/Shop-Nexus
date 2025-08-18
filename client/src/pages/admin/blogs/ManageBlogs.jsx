@@ -4,22 +4,16 @@ import { fetchBlogs } from "../../../features/blogSlice";
 
 export const ManageBlogsPage = () => {
   const dispatch = useDispatch();
-  const { items, loading, error, page, totalPages } = useSelector(
-    (state) => state.blogs
-  );
+  const { items, loading, error } = useSelector((state) => state.blogs);
 
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    dispatch(fetchBlogs({ page: 1 }));
+    dispatch(fetchBlogs({}));
   }, [dispatch]);
 
   const handleSearch = () => {
-    dispatch(fetchBlogs({ page: 1, search }));
-  };
-
-  const handlePageChange = (newPage) => {
-    dispatch(fetchBlogs({ page: newPage, search }));
+    dispatch(fetchBlogs({ search }));
   };
 
   return (
@@ -65,7 +59,7 @@ export const ManageBlogsPage = () => {
               {/* Blog Image */}
               <img
                 src={
-                  blog.image ||
+                  blog.coverImageUrl ||
                   "https://via.placeholder.com/600x300?text=No+Image"
                 }
                 alt={blog.title}
@@ -103,28 +97,6 @@ export const ManageBlogsPage = () => {
               </div>
             </div>
           ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-3 mt-10">
-        <button
-          disabled={page <= 1}
-          onClick={() => handlePageChange(page - 1)}
-          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ⬅ Prev
-        </button>
-        <span className="text-gray-700 font-medium">
-          Page <span className="text-blue-600">{page}</span> of{" "}
-          <span className="text-blue-600">{totalPages}</span>
-        </span>
-        <button
-          disabled={page >= totalPages}
-          onClick={() => handlePageChange(page + 1)}
-          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Next ➡
-        </button>
       </div>
     </div>
   );

@@ -23,73 +23,34 @@ const router = Router();
  *       type: object
  *       required: [title, slug, content, author]
  *       properties:
- *         _id:
- *           type: string
- *         title:
- *           type: string
- *         slug:
- *           type: string
- *         content:
- *           type: string
- *         author:
- *           type: string
+ *         _id: { type: string }
+ *         title: { type: string }
+ *         slug: { type: string }
+ *         content: { type: string }
+ *         author: { type: string }
  *         tags:
  *           type: array
- *           items:
- *             type: string
- *         coverImageUrl:
- *           type: string
- *         status:
- *           type: string
- *           enum: [draft, published]
- *         readingTime:
- *           type: number
- *         publishedAt:
- *           type: string
- *           format: date-time
- *         createdAt:
- *           type: string
- *           format: date-time
- *         updatedAt:
- *           type: string
- *           format: date-time
- *     BlogList:
- *       type: object
- *       properties:
- *         items:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Blog'
- *         page:
- *           type: integer
- *         limit:
- *           type: integer
- *         total:
- *           type: integer
- *         totalPages:
- *           type: integer
+ *           items: { type: string }
+ *         coverImageUrl: { type: string }
+ *         status: { type: string, enum: [draft, published] }
+ *         readingTime: { type: number }
+ *         publishedAt: { type: string, format: date-time }
+ *         createdAt: { type: string, format: date-time }
+ *         updatedAt: { type: string, format: date-time }
  *     Error:
  *       type: object
  *       properties:
- *         success:
- *           type: boolean
- *         message:
- *           type: string
+ *         success: { type: boolean }
+ *         message: { type: string }
  */
 
 /**
  * @swagger
  * /api/blogs:
  *   get:
- *     summary: Get blogs (paginated)
+ *     summary: Get all blogs (no pagination)
  *     tags: [Blogs]
  *     parameters:
- *       - in: query
- *         name: page
- *         schema: { type: integer, example: 1 }
- *       - in: query
- *         name: limit
- *         schema: { type: integer, example: 10 }
  *       - in: query
  *         name: status
  *         schema: { type: string, enum: [draft, published] }
@@ -105,7 +66,9 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BlogList'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Blog'
  */
 router.get("/", checkAuth, getBlogs);
 
@@ -124,10 +87,6 @@ router.get("/", checkAuth, getBlogs);
  *     responses:
  *       201:
  *         description: Blog created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Blog'
  */
 router.post(
   "/",
@@ -150,11 +109,7 @@ router.post(
  *         description: Mongo ObjectId or slug
  *     responses:
  *       200:
- *         description: Blog
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Blog'
+ *         description: Blog found
  *       404:
  *         description: Not found
  */
@@ -203,7 +158,7 @@ router.put(
  *         required: true
  *     responses:
  *       200:
- *         description: Deleted
+ *         description: Blog deleted
  *       404:
  *         description: Not found
  */

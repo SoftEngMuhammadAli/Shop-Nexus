@@ -4,7 +4,7 @@ import redis from "../utils/redisClient.js";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 
 // Cache keys
-const BLOG_LIST_KEY = "blogs:list"; // list cache (basic)
+const BLOG_LIST_KEY = "blogs:list";
 const BLOG_KEY = (id) => `blog:${id}`;
 
 // Helpers
@@ -47,21 +47,19 @@ export const createBlog = catchAsyncHandler(async (req, res) => {
   });
 });
 
-// ============ LIST (with basic filters + pagination) ============
+// ============ LIST (no pagination) ============
 export const getBlogs = catchAsyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, status, tag, search } = req.query;
+  const { status, tag, search } = req.query;
 
-  // Only cache simplest case (first page with no filters) to keep cache logic simple.
-  const canUseListCache =
-    Number(page) === 1 && Number(limit) === 10 && !status && !tag && !search;
+  const canUseCache = !status && !tag && !search;
 
-  if (canUseListCache) {
+  if (canUseCache) {
     const cached = await redis.get(BLOG_LIST_KEY);
     if (cached) {
       return res.status(200).json({
         success: true,
         message: "Blogs retrieved successfully (cache)",
-        data: cached,
+        data: JSON.parse(cached),
       });
     }
   }
@@ -70,44 +68,28 @@ export const getBlogs = catchAsyncHandler(async (req, res) => {
   if (status) query.status = status;
   if (tag) query.tags = tag;
   if (search) {
-    // simple text search on title/content
     query.$or = [
       { title: { $regex: search, $options: "i" } },
       { content: { $regex: search, $options: "i" } },
     ];
   }
 
-  const skip = (Number(page) - 1) * Number(limit);
+  const blogs = await Blog.find(query).sort({ createdAt: -1 });
 
-  const [items, total] = await Promise.all([
-    Blog.find(query).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
-    Blog.countDocuments(query),
-  ]);
-
-  const payload = {
-    items,
-    page: Number(page),
-    limit: Number(limit),
-    total,
-    totalPages: Math.ceil(total / Number(limit || 1)),
-  };
-
-  if (canUseListCache) {
-    await redis.set(BLOG_LIST_KEY, JSON.stringify(payload), { EX: 60 }); // 60s TTL
+  if (canUseCache) {
+    await redis.set(BLOG_LIST_KEY, JSON.stringify(blogs), { EX: 60 });
   }
 
   res.status(200).json({
     success: true,
     message: "Blogs retrieved successfully",
-    data: payload,
+    data: blogs,
   });
 });
 
 // ============ GET BY ID OR SLUG ============
 export const getBlog = catchAsyncHandler(async (req, res) => {
   const { idOrSlug } = req.params;
-
-  // Cache only when it's a MongoId-looking id (to avoid cache explosion on arbitrary slugs).
   const isId = /^[a-f\d]{24}$/i.test(idOrSlug);
 
   if (isId) {
