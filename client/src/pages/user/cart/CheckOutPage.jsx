@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-
-// Sample cart data
-const sampleCart = [
-  { id: 1, name: "Laptop", price: 1200, quantity: 1 },
-  { id: 2, name: "Headphones", price: 150, quantity: 2 },
-];
+import { sampleCartForCheckOutPage } from "../../../data/cart";
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +16,7 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const subtotal = sampleCart.reduce(
+  const subtotal = sampleCartForCheckOutPage.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
@@ -96,7 +91,7 @@ const CheckoutPage = () => {
         <div className="bg-white p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           <div className="space-y-4">
-            {sampleCart.map((item) => (
+            {sampleCartForCheckOutPage.map((item) => (
               <div
                 key={item.id}
                 className="flex justify-between items-center border-b pb-2"

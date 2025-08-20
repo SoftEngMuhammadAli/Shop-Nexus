@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers } from "../../../features/userSlice";
 import { useNavigate } from "react-router-dom";
-import HeaderNav from "../../../components/common/HeaderNav";
 import { ShowError } from "../../../components/common/Error";
 import { Loader } from "../../../components/common/Loader";
+import SearchBar from "../../../components/common/SearchBar";
 
 const ManageUsers = () => {
   const dispatch = useDispatch();
@@ -21,7 +21,13 @@ const ManageUsers = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">User Management</h1>
+      <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 mb-6">
+        {/* Title */}
+        <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+
+        {/* Search Bar */}
+        <SearchBar />
+      </div>
 
       {/* Desktop Table View */}
       <div className="hidden sm:block overflow-x-auto shadow-md rounded-lg">

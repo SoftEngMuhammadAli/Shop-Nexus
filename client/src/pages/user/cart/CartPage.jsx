@@ -1,23 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Sample cart data
-const sampleCart = [
-  {
-    id: 1,
-    name: "Laptop",
-    price: 1200,
-    image: "https://via.placeholder.com/100x80?text=Laptop",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: "Headphones",
-    price: 150,
-    image: "https://via.placeholder.com/100x80?text=Headphones",
-    quantity: 2,
-  },
-];
+import { sampleCart } from "../../../data/cart";
 
 const CartPage = () => {
   const navigate = useNavigate();
