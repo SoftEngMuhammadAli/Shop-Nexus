@@ -9,16 +9,18 @@ export const ManageBlogsPage = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    dispatch(fetchBlogs({}));
+    dispatch(fetchBlogs());
   }, [dispatch]);
 
-  const handleSearch = () => {
-    if (search.trim()) {
-      dispatch(fetchBlogs({ search }));
-    } else {
-      dispatch(fetchBlogs({}));
-    }
-  };
+  // 🔍 filtering blogs locally
+  const filteredBlogs = items.filter((blog) => {
+    const searchLower = search.toLowerCase();
+    return (
+      blog.title.toLowerCase().includes(searchLower) ||
+      blog.content.toLowerCase().includes(searchLower) ||
+      blog.tags?.some((tag) => tag.toLowerCase().includes(searchLower))
+    );
+  });
 
   return (
     <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -32,13 +34,13 @@ export const ManageBlogsPage = () => {
         <div className="flex w-full md:w-1/2 items-center bg-white shadow rounded-lg overflow-hidden">
           <input
             type="text"
-            placeholder="Search blogs..."
+            placeholder="Search blogs... (title, content, tags)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="px-4 py-2 w-full outline-none"
           />
           <button
-            onClick={handleSearch}
+            onClick={() => {}}
             className="bg-blue-600 text-white px-5 py-2 hover:bg-blue-700 transition"
           >
             Search
@@ -55,12 +57,11 @@ export const ManageBlogsPage = () => {
       {/* Blog Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {!loading &&
-          items.map((blog) => (
+          filteredBlogs.map((blog) => (
             <div
               key={blog._id}
               className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
             >
-              {/* Blog Image */}
               <img
                 src={
                   blog.coverImageUrl ||

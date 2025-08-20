@@ -1,60 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUpload, FaPenFancy } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { createBlog } from "../../../features/blogSlice";
-import { Loader } from "../../../components/common/Loader";
-import { ShowError } from "../../../components/common/Error";
+import { createBlog, resetBlogState } from "../../../features/blogSlice";
+import { toast } from "react-toastify";
 
 export const CreateBlogPage = () => {
-  const { loading, error } = useSelector((state) => state.blogs);
   const dispatch = useDispatch();
+  const { creating, createError, createdBlog } = useSelector(
+    (state) => state.blogs
+  );
 
   const [formData, setFormData] = useState({
     title: "",
-    slug: "",
     content: "",
-    author: "",
     tags: "",
     coverImageUrl: "",
-    status: "draft",
-    readingTime: 0,
-    publishedAt: "",
+    status: "Pending",
+    readingTime: 1,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const blogData = {
-      ...formData,
+    const payload = {
+      title: formData.title.trim(),
+      content: formData.content.trim(),
       tags: formData.tags
-        ? formData.tags.split(",").map((tag) => tag.trim())
+        ? formData.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
         : [],
+      coverImageUrl: formData.coverImageUrl.trim(),
+      status: formData.status.toLocaleLowerCase(),
+      readingTime: Number(formData.readingTime),
     };
 
-    dispatch(createBlog(blogData));
-    console.log("Blog Data Sent:", blogData);
+    console.log("📤 Submitting payload:", payload);
 
-    // Reset form
-    setFormData({
-      title: "",
-      slug: "",
-      content: "",
-      author: "",
-      tags: "",
-      coverImageUrl: "",
-      status: "draft",
-      readingTime: 0,
-      publishedAt: "",
-    });
+    if (
+      !payload.title ||
+      !payload.content ||
+      payload.tags.length === 0 ||
+      !payload.coverImageUrl ||
+      !payload.status ||
+      !payload.readingTime
+    ) {
+      toast.error(
+        "Please fill title, content, at least one tag, cover image URL, status, and reading time."
+      );
+      console.log("❌ Validation failed", payload);
+      return;
+    }
+
+    try {
+      const result = await dispatch(createBlog(payload)).unwrap();
+      console.log("✅ Blog created response:", result);
+      toast.success("🎉 Blog created successfully!");
+      setFormData({
+        title: "",
+        content: "",
+        tags: "",
+        coverImageUrl: "",
+        status: "Pending",
+        readingTime: 1,
+      });
+      dispatch(resetBlogState());
+    } catch (err) {
+      console.error("🔥 Blog creation failed:", err);
+    }
   };
 
-  if (loading) return <Loader />;
-  if (error) return <ShowError error={error} />;
+  useEffect(() => {
+    if (createError) toast.error(createError);
+  }, [createError]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 py-12 px-6">
@@ -68,35 +92,20 @@ export const CreateBlogPage = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Blog Title + Slug */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Blog Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Enter blog title"
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Slug
-              </label>
-              <input
-                type="text"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                placeholder="example-blog-slug"
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
-              />
-            </div>
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Blog Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Enter blog title"
+              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
+              required
+            />
           </div>
 
           {/* Content */}
@@ -115,41 +124,26 @@ export const CreateBlogPage = () => {
             ></textarea>
           </div>
 
-          {/* Author + Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Author <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="author"
-                value={formData.author}
-                onChange={handleChange}
-                placeholder="Author name"
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
-                name="tags"
-                value={formData.tags}
-                onChange={handleChange}
-                placeholder="tech, react, javascript"
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
-              />
-            </div>
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Tags (comma separated) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="tags"
+              value={formData.tags}
+              onChange={handleChange}
+              placeholder="tech, react, javascript"
+              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
+              required
+            />
           </div>
 
           {/* Cover Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cover Image
+              Cover Image URL <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <FaUpload className="text-gray-500 text-lg" />
@@ -160,6 +154,7 @@ export const CreateBlogPage = () => {
                 onChange={handleChange}
                 placeholder="https://example.com/image.jpg"
                 className="flex-1 rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
+                required
               />
             </div>
             {formData.coverImageUrl && (
@@ -177,62 +172,49 @@ export const CreateBlogPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Status
+                Status <span className="text-red-500">*</span>
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
+                required
               >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
+                <option value="Pending">Pending</option>
+                <option value="Published">Published</option>
+                <option value="Draft">Draft</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Reading Time (mins)
+                Reading Time (minutes) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 name="readingTime"
                 value={formData.readingTime}
                 onChange={handleChange}
-                min="0"
+                min="1"
                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
+                required
               />
             </div>
           </div>
-
-          {/* Publish Date */}
-          {formData.status === "published" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Publish Date
-              </label>
-              <input
-                type="datetime-local"
-                name="publishedAt"
-                value={formData.publishedAt}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3"
-              />
-            </div>
-          )}
 
           {/* Submit */}
           <div className="pt-6">
             <button
               type="submit"
-              disabled={loading}
+              disabled={creating}
               className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 shadow-md transition-all duration-200 disabled:opacity-50"
             >
-              {loading ? "⏳ Publishing..." : "🚀 Publish Blog"}
+              {creating ? "⏳ Publishing..." : "🚀 Publish Blog"}
             </button>
           </div>
 
-          {error && <p className="text-red-600 mt-4">{error}</p>}
+          {createError && <p className="text-red-600 mt-4">{createError}</p>}
         </form>
       </div>
     </div>

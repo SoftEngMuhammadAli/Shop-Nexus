@@ -42,7 +42,14 @@ export const getBlog = catchAsyncHandler(async (req, res) => {
 export const createBlog = catchAsyncHandler(async (req, res) => {
   const { title, content, tags, coverImageUrl, status, readingTime } = req.body;
 
-  if ((!title, !content, !tags, !coverImageUrl, !status, !readingTime)) {
+  if (
+    !title ||
+    !content ||
+    !tags ||
+    !coverImageUrl ||
+    !status ||
+    !readingTime
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 

@@ -5,9 +5,9 @@ import axiosInstance from "../services/apiServices";
 // ✅ Fetch blogs (body instead of query params)
 export const fetchBlogs = createAsyncThunk(
   "blogs/fetchBlogs",
-  async (filters = {}, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      const response = await axiosInstance.post("/api/blogs/list", filters, {
+      const response = await axiosInstance.get("/api/blogs", data, {
         withCredentials: true,
       });
       return response.data.data;
@@ -22,35 +22,19 @@ export const fetchBlogs = createAsyncThunk(
 // ✅ Create blog
 export const createBlog = createAsyncThunk(
   "blogs/createBlog",
-  async (blogData, thunkAPI) => {
+  async (blogData, { rejectWithValue }) => {
+    console.log("📡 Sending createBlog request with:", blogData);
     try {
-      const token = thunkAPI.getState().auth?.token;
-      const response = await axiosInstance.post(
-        "/api/blogs/create-blog",
-        blogData,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      return response.data.data;
+      const res = await axiosInstance.post("/api/blogs/create-blog", blogData, {
+        withCredentials: true,
+      });
+      console.log("✅ Server response:", res.data);
+      return res.data.data;
     } catch (err) {
-      let errorMessage = "Failed to create blog";
-
-      if (err.response) {
-        // Handle specific error messages from server
-        errorMessage = err.response.data.message || errorMessage;
-
-        // If 403, add more context
-        if (err.response.status === 403) {
-          errorMessage = "Permission denied: " + errorMessage;
-        }
-      }
-
-      return thunkAPI.rejectWithValue(errorMessage);
+      console.error("❌ API error:", err.response?.data || err.message);
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create blog"
+      );
     }
   }
 );
@@ -128,21 +112,20 @@ const blogSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create
+      // Create blog
       .addCase(createBlog.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
+        state.creating = true;
+        state.createError = null;
+        state.createdBlog = null;
       })
       .addCase(createBlog.fulfilled, (state, action) => {
-        state.loading = false;
+        state.creating = false;
+        state.createdBlog = action.payload;
         state.items.unshift(action.payload);
-        state.success = true;
       })
       .addCase(createBlog.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-        state.success = false;
+        state.creating = false;
+        state.createError = action.payload;
       })
 
       // Update
