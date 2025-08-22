@@ -8,11 +8,16 @@ import { connectToDatabase } from "./config/database.js";
 import setupSwagger from "./swagger.js";
 
 // Routers
-import authRouter from "./routers/authRouter.js";
-import userRouter from "./routers/userRouter.js";
-import productRouter from "./routers/productRouter.js";
-import blogRouter from "./routers/blogRouter.js";
-import orderRouter from "./routers/orderRouter.js";
+import authRouter from "./routers/authRoutes.js";
+import userRouter from "./routers/userRoutes.js";
+import productRouter from "./routers/productRoutes.js";
+import blogRouter from "./routers/blogRoutes.js";
+import orderRouter from "./routers/orderRoutes.js";
+import wishListRouter from "./routers/wishListRoutes.js";
+import reviewRouter from "./routers/reviewRoutes.js";
+import likeRouter from "./routers/likeRoutes.js";
+import commentRouter from "./routers/commentRoutes.js";
+import cartRouter from "./routers/cartRoutes.js";
 
 dotenv.config();
 
@@ -77,6 +82,11 @@ app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/blogs", blogRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/wishlist", wishListRouter);
+app.use("/api/reviews", reviewRouter);
+app.use("/api/likes", likeRouter);
+app.use("/api/comments", commentRouter);
+app.use("/api/cart", cartRouter);
 
 // --- Connect to DB first, then start server ---
 const dbUri = process.env.MONGODB_URI;
