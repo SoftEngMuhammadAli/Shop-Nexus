@@ -7,6 +7,7 @@ import { FiMenu } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/common/Loader";
 import { ShowError } from "../../components/common/Error";
+import { AdminDashboardItemCard } from "../../components/admin/AdminDashboardItemCard";
 
 const AdminDashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,9 +16,11 @@ const AdminDashboardPage = () => {
     `${import.meta.env.VITE_API_BASE_URL}/api/users/all`
   );
 
-  const { data: products, loading: productsLoading } = useFetchData(
-    `${import.meta.env.VITE_API_BASE_URL}/api/products/all`
-  );
+  const {
+    data: products,
+    loading: productsLoading,
+    error: productsError,
+  } = useFetchData(`${import.meta.env.VITE_API_BASE_URL}/api/products/all`);
 
   const { data: orders, loading: ordersLoading } = useFetchData(
     `${import.meta.env.VITE_API_BASE_URL}/api/orders/all`
@@ -82,35 +85,35 @@ const AdminDashboardPage = () => {
           <DashboardTitleTile
             title="Recently Added Products"
             buttonTitle="View All"
-            onClick={() => {
-              toast.info("Feature coming soon!");
-            }}
+            onClick={() => toast.info("Feature coming soon!")}
           />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((product) => (
-              <div
-                key={product}
-                className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition"
-              >
-                <div className="bg-gray-200 h-40 flex items-center justify-center text-gray-400">
-                  Image {product}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Product {product}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Short description of product {product}.
-                  </p>
-                  <div className="mt-4 flex justify-between items-center">
-                    <span className="text-blue-600 font-semibold">$19.99</span>
-                    <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                      View Details
-                    </button>
-                  </div>
-                </div>
+            {productsLoading ? (
+              <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center py-6">
+                <Loader />
               </div>
-            ))}
+            ) : productsError ? (
+              <ShowError error={productsError} />
+            ) : products && products.length > 0 ? (
+              products
+                .slice(0, 6)
+                .map((product) => (
+                  <AdminDashboardItemCard
+                    key={product._id}
+                    image={null}
+                    title={product.name}
+                    description={product.description}
+                    meta={`$${product.price}`}
+                    buttonText="View Details"
+                    onButtonClick={() => toast.info("Feature coming soon!")}
+                  />
+                ))
+            ) : (
+              <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center py-6">
+                <p className="text-gray-600">No products found.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -119,10 +122,9 @@ const AdminDashboardPage = () => {
           <DashboardTitleTile
             title="Recently Added Blogs"
             buttonTitle="View All"
-            onClick={() => {
-              toast.info("Feature coming soon!");
-            }}
+            onClick={() => toast.info("Feature coming soon!")}
           />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {blogsLoading ? (
               <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center py-6">
@@ -131,36 +133,19 @@ const AdminDashboardPage = () => {
             ) : blogsError ? (
               <ShowError error={blogsError} />
             ) : blogs && blogs.length > 0 ? (
-              blogs.slice(0, 6).map((blog) => (
-                <div
-                  key={blog._id}
-                  className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition"
-                >
-                  <div className="bg-gray-200 h-40 flex items-center justify-center text-gray-400">
-                    <img
-                      src={blog.coverImageUrl}
-                      alt={blog.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold text-gray-800">
-                      {blog.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                      {blog.content}
-                    </p>
-                    <div className="mt-4 flex justify-between items-center">
-                      <span className="text-blue-600 font-semibold">
-                        {blog.readingTime || "1m"} read
-                      </span>
-                      <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                        View Blog
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
+              blogs
+                .slice(0, 6)
+                .map((blog) => (
+                  <AdminDashboardItemCard
+                    key={blog._id}
+                    image={blog.coverImageUrl}
+                    title={blog.title}
+                    description={blog.content}
+                    meta={`${blog.readingTime || "1m"} read`}
+                    buttonText="View Blog"
+                    onButtonClick={() => toast.info("Feature coming soon!")}
+                  />
+                ))
             ) : (
               <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center py-6">
                 <p className="text-gray-600">No blogs found.</p>

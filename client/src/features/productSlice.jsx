@@ -6,6 +6,7 @@ export const getAllProducts = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axiosInstance.get("/api/products/all");
+      console.log("Fetched products:", response.data);
       return response.data; // this contains { success, message, data }
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -20,7 +21,7 @@ const productSlice = createSlice({
   initialState: {
     error: null,
     loading: false,
-    products: [], // ✅ fix key
+    products: [],
   },
   reducers: {},
   extraReducers: (builder) => {

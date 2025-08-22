@@ -10,6 +10,8 @@ export const fetchBlogs = createAsyncThunk(
       const response = await axiosInstance.get("/api/blogs", data, {
         withCredentials: true,
       });
+      console.log("Fetched blogs:", response.data);
+
       return response.data.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
@@ -50,6 +52,7 @@ export const updateBlog = createAsyncThunk(
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         withCredentials: true,
       });
+      console.log("Updated blog:", response.data);
 
       return response.data.data;
     } catch (err) {
@@ -71,6 +74,7 @@ export const deleteBlog = createAsyncThunk(
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         withCredentials: true,
       });
+      console.log("Deleted blog:", id);
 
       return id;
     } catch (err) {

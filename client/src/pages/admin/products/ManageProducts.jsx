@@ -6,6 +6,7 @@ import { ShowError } from "../../../components/common/Error";
 import { useNavigate } from "react-router-dom";
 import { FaProductHunt } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { FiLoader } from "react-icons/fi";
 
 const ManageProductsPage = () => {
   const dispatch = useDispatch();
@@ -34,23 +35,25 @@ const ManageProductsPage = () => {
               {/* Leading Icon */}
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100">
-                  <FaProductHunt className="w-6 h-6 text-gray-600" />
+                  {/* Show Image from API */}
+                  {value.imageUrl && (
+                    <img src={value.imageUrl} alt={value.name} />
+                  )}
+
+                  {/* show placeholder icon if no image available from API */}
+                  {!value.imageUrl && <FaProductHunt size={24} />}
                 </div>
 
                 {/* Product Info */}
                 <div>
-                  <p className="font-semibold text-gray-800">
-                    {value.productName}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {value.productDescription}
-                  </p>
+                  <p className="font-semibold text-gray-800">{value.name}</p>
+                  <p className="text-sm text-gray-500">{value.description}</p>
                   <div className="flex flex-col md:flex-row gap-3">
                     <p className="text-sm text-gray-700 font-medium">
-                      💰 Price: ${value.productPrice?.toFixed(2)}
+                      💰 Price: ${value.price?.toFixed(2)}
                     </p>
                     <p className="text-sm text-gray-700">
-                      📦 Quantity: {value.productQuantity}
+                      📦 Quantity: {value.quantity}
                     </p>
                   </div>
                 </div>

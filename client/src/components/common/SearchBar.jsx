@@ -8,7 +8,7 @@ const SearchBar = ({
   buttonText = "Search",
 }) => {
   return (
-    <div className="flex w-full md:w-1/2 items-center bg-white shadow rounded-lg overflow-hidden">
+    <div className="flex w-full md:max-w-xl items-center bg-white shadow rounded-lg overflow-hidden">
       <input
         type="text"
         placeholder={placeholder}

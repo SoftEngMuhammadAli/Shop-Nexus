@@ -8,6 +8,7 @@ export const registerUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const response = await axiosInstance.post("/api/auth/register", userData);
+      console.log("Registration successful:", response.data);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -25,11 +26,14 @@ export const loginUser = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       const response = await axiosInstance.post("/api/auth/login", data);
+      console.log("Login successful:", response.data);
 
       const { token, user } = response.data;
+      console.log("User data:", user);
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      console.log("User data stored in localStorage:", user);
 
       return { user };
     } catch (error) {

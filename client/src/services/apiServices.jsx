@@ -2,6 +2,7 @@ import axios from "axios";
 
 // Base URL (from .env or fallback)
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("API Base URL:", BASE_URL);
 
 // Axios instance
 const axiosInstance = axios.create({
