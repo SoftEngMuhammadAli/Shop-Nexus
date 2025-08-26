@@ -7,7 +7,7 @@ import { FiMenu } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/common/Loader";
 import { ShowError } from "../../components/common/Error";
-import { AdminDashboardItemCard } from "../../components/admin/AdminDashboardItemCard";
+import { CustomCard } from "../../components/ui/CustomCard";
 
 const AdminDashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -111,7 +111,7 @@ const AdminDashboardPage = () => {
               products
                 .slice(0, 6)
                 .map((product) => (
-                  <AdminDashboardItemCard
+                  <CustomCard
                     key={product._id}
                     image={product.imageUrl}
                     title={product.name}
@@ -148,7 +148,7 @@ const AdminDashboardPage = () => {
               blogs
                 .slice(0, 6)
                 .map((blog) => (
-                  <AdminDashboardItemCard
+                  <CustomCard
                     key={blog._id}
                     image={blog.coverImageUrl}
                     title={blog.title}

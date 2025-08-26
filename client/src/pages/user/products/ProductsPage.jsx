@@ -1,13 +1,30 @@
-import React, { useState } from "react";
-import { sampleProducts } from "../../../data/products";
+import React, { useState, useEffect } from "react";
+import { useFetchData } from "../../../hooks/useCustomHook";
+import { Loader } from "../../../components/common/Loader";
+import { ShowError } from "../../../components/common/Error";
+import { CustomCard } from "../../../components/ui/CustomCard";
 
 const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", ...new Set(sampleProducts.map((p) => p.category))];
+  // Fetch products dynamically from API
+  const {
+    data: productsData,
+    loading: productsLoading,
+    error: productsError,
+  } = useFetchData(`${import.meta.env.VITE_API_BASE_URL}/api/products/all`);
 
-  const filteredProducts = sampleProducts.filter((product) => {
+  // Dynamically generate categories from fetched data
+  const categories = [
+    "All",
+    ...(productsData?.map((p) => p.category) || []).filter(
+      (v, i, a) => a.indexOf(v) === i
+    ),
+  ];
+
+  // Filter products based on search term and selected category
+  const filteredProducts = productsData?.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -20,7 +37,7 @@ const ProductsPage = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Products</h1>
 
-      {/* Search & category filter */}
+      {/* Search & Category Filter */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
         <input
           type="text"
@@ -43,33 +60,42 @@ const ProductsPage = () => {
         </select>
       </div>
 
-      {/* Products grid */}
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white p-5 rounded-2xl shadow hover:shadow-xl hover:scale-105 transform transition duration-300"
-            >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-40 w-full object-cover rounded-lg mb-4"
+      {/* Products Grid */}
+      {productsLoading && (
+        <div className="text-center py-6">
+          <Loader />
+        </div>
+      )}
+
+      {productsError && (
+        <div className="text-center py-6 text-red-500">
+          <ShowError error={productsError} />
+        </div>
+      )}
+
+      {!productsLoading && !productsError && (
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {filteredProducts?.length > 0 ? (
+            filteredProducts.map((product) => (
+              <CustomCard
+                key={product._id}
+                image={product.image || product.imageUrl}
+                title={product.name}
+                description={product.description || "No description"}
+                meta={`$${product.price}`}
+                buttonText="View Details"
+                onButtonClick={() =>
+                  window.open(`/products/${product._id}`, "_blank")
+                }
               />
-              <h2 className="text-xl font-semibold mb-1">{product.name}</h2>
-              <p className="text-gray-500 mb-2">{product.description}</p>
-              <p className="text-indigo-600 font-bold mb-4">${product.price}</p>
-              <button className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
-                Add to Cart
-              </button>
-            </div>
-          ))
-        ) : (
-          <p className="text-center col-span-full text-gray-500">
-            No products found.
-          </p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p className="text-center col-span-full text-gray-500">
+              No products found.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -35,6 +35,7 @@ const HeaderNav = () => {
     if (user?.userRole === "user") {
       return [
         { to: "/home", label: "Home" },
+        { to: "/about", label: "About" },
         { to: "/products", label: "Products" },
         { to: "/cart", label: "Cart" },
         { to: "/orders", label: "Orders" },

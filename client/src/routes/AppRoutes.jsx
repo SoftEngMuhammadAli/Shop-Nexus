@@ -12,7 +12,6 @@ import AdminDashboardPage from "../pages/admin/AdminDashboard";
 import ManageUsersPage from "../pages/admin/users/ManageUsers";
 import ManageProductsPage from "../pages/admin/products/ManageProducts";
 import { ManageBlogsPage } from "../pages/admin/blogs/ManageBlogs";
-import HomePage from "../pages/HomePage";
 import ProductsPage from "../pages/user/products/ProductsPage";
 import LoginPage from "../pages/auth/Login";
 import RegisterPage from "../pages/auth/Register";
@@ -37,12 +36,15 @@ import DeleteUsersPage from "../pages/admin/users/DeleteUsers";
 import CreateUserPage from "../pages/admin/users/CreateUsers";
 import DeleteBlogPage from "../pages/admin/blogs/DeleteBlog";
 import DeleteProductPage from "../pages/admin/products/DeleteProduct";
+import HomePage from "../pages/user/HomePage";
+import AppFooter from "../components/common/Footer";
 
 // Layout that wraps protected routes
 const MainLayout = () => (
   <div>
     <HeaderNav />
     <Outlet />
+    <AppFooter />
   </div>
 );
 
