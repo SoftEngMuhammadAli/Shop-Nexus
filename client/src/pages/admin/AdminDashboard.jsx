@@ -78,6 +78,18 @@ const AdminDashboardPage = () => {
             count={blogs?.length}
             loading={blogsLoading}
           />
+
+          <AdminDashboardStatsCard
+            title="Total Blogs Drafted"
+            count={blogs?.filter((blog) => blog.status === "draft").length}
+            loading={blogsLoading}
+          />
+
+          <AdminDashboardStatsCard
+            title="Total Blogs Pending"
+            count={blogs?.filter((blog) => blog.status === "pending").length}
+            loading={blogsLoading}
+          />
         </div>
 
         {/* Recently Added Products */}

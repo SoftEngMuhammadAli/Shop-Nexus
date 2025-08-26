@@ -33,6 +33,10 @@ import ViewUserPage from "../pages/admin/users/ViewUser";
 import UpdateUserPage from "../pages/admin/users/UpdateUser";
 import ManageAdminOrdersPage from "../pages/admin/orders/ManageAdminOrders";
 import UserOrderPage from "../pages/user/orders/OrderPage";
+import DeleteUsersPage from "../pages/admin/users/DeleteUsers";
+import CreateUserPage from "../pages/admin/users/CreateUsers";
+import DeleteBlogPage from "../pages/admin/blogs/DeleteBlog";
+import DeleteProductPage from "../pages/admin/products/DeleteProduct";
 
 // Layout that wraps protected routes
 const MainLayout = () => (
@@ -74,27 +78,45 @@ export const AppRoutes = () => (
             />
 
             {/* User Routers for Admin */}
-            <Route path="/admin/manage-users" element={<ManageUsersPage />} />
-            <Route path="/admin/users/:id" element={<ViewUserPage />} />
+            <Route
+              path="/admin/users/manage-users"
+              element={<ManageUsersPage />}
+            />
+            <Route
+              path="/admin/users/create-user"
+              element={<CreateUserPage />}
+            />
+            <Route
+              path="/admin/users/view-all-users/:id"
+              element={<ViewUserPage />}
+            />
             <Route path="/admin/users/edit/:id" element={<UpdateUserPage />} />
+            <Route
+              path="/admin/users/delete/:id"
+              element={<DeleteUsersPage />}
+            />
 
             {/* Product Routers for Admin */}
             <Route
-              path="/admin/manage-products"
+              path="/admin/products/manage-products"
               element={<ManageProductsPage />}
             />
             <Route
-              path="/admin/create-product"
+              path="/admin/products/create-product"
               element={<CreateProductPage />}
             />
             <Route
               path="/admin/products/edit/:id"
               element={<UpdateProductPage />}
             />
+            <Route
+              path="/admin/products/delete/:id"
+              element={<DeleteProductPage />}
+            />
 
             {/* Order Routes for Admin */}
             <Route
-              path="/admin/manage-orders"
+              path="/admin/orders/manage-orders"
               element={<ManageAdminOrdersPage />}
             />
 
@@ -102,6 +124,10 @@ export const AppRoutes = () => (
             <Route path="/admin/blogs/get-all" element={<ManageBlogsPage />} />
             <Route path="/admin/blogs/create" element={<CreateBlogPage />} />
             <Route path="/admin/blogs/edit/:id" element={<UpdateBlogPage />} />
+            <Route
+              path="/admin/blogs/delete/:id"
+              element={<DeleteBlogPage />}
+            />
           </Route>
         </Route>
       </Route>

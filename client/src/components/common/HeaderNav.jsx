@@ -44,18 +44,11 @@ const HeaderNav = () => {
     if (user?.userRole === "admin") {
       return [
         { to: "/home/admin-dashboard", label: "Dashboard" },
-        { to: "/admin/manage-users", label: "Manage Users" },
-        { to: "/admin/manage-products", label: "Manage Products" },
-        { to: "/manage-orders", label: "Manage Orders" },
+        { to: "/admin/users/manage-users", label: "Manage Users" },
+        { to: "/admin/products/manage-products", label: "Manage Products" },
+        { to: "/admin/orders/manage-orders", label: "Manage Orders" },
         { to: "/admin/blogs/get-all", label: "Manage Blogs" },
         { to: "/settings", label: "Settings" },
-      ];
-    }
-
-    if (user?.userRole === "super-admin") {
-      return [
-        { to: "/super-admin-dashboard", label: "Super Admin Dashboard" },
-        { to: "/admin-dashboard", label: "Admin Panel" },
       ];
     }
 
@@ -72,7 +65,7 @@ const HeaderNav = () => {
               ? "/home"
               : user.userRole === "admin"
               ? "/home/admin-dashboard"
-              : "/super-admin-dashboard"
+              : "/login"
           }
           className="text-xl font-bold"
         >
