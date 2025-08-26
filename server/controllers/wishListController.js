@@ -1,12 +1,14 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Wishlist from "../models/Wishlist.js";
 import Product from "../models/Product.js";
+import redisClient from "../utils/redisClient.js";
 
 // @desc   Add product to wishlist
 // @route  POST /api/wishlist/:productId
 // @access Protected (user)
 export const addToWishlist = catchAsyncHandler(async (req, res) => {
   const { productId } = req.params;
+  const cacheKey = `wishlist:${req.user._id}`;
 
   const product = await Product.findById(productId);
   if (!product) {
@@ -37,6 +39,9 @@ export const addToWishlist = catchAsyncHandler(async (req, res) => {
     "name price"
   );
 
+  // Update cache
+  await redisClient.set(cacheKey, JSON.stringify(populatedWishlist.products));
+
   res.status(201).json({ success: true, data: populatedWishlist });
 });
 
@@ -44,6 +49,18 @@ export const addToWishlist = catchAsyncHandler(async (req, res) => {
 // @route  GET /api/wishlist
 // @access Protected (user)
 export const getWishlist = catchAsyncHandler(async (req, res) => {
+  const cacheKey = `wishlist:${req.user._id}`;
+
+  // Check Redis first
+  const cached = await redisClient.get(cacheKey);
+  if (cached) {
+    return res.json({
+      success: true,
+      data: JSON.parse(cached),
+      fromCache: true,
+    });
+  }
+
   const wishlist = await Wishlist.findOne({ user: req.user._id }).populate(
     "products",
     "name price"
@@ -53,6 +70,9 @@ export const getWishlist = catchAsyncHandler(async (req, res) => {
     return res.json({ success: true, data: [] });
   }
 
+  // Save to Redis
+  await redisClient.set(cacheKey, JSON.stringify(wishlist.products));
+
   res.json({ success: true, data: wishlist.products });
 });
 
@@ -61,6 +81,7 @@ export const getWishlist = catchAsyncHandler(async (req, res) => {
 // @access Protected (user)
 export const removeFromWishlist = catchAsyncHandler(async (req, res) => {
   const { productId } = req.params;
+  const cacheKey = `wishlist:${req.user._id}`;
 
   const wishlist = await Wishlist.findOne({ user: req.user._id });
   if (!wishlist) {
@@ -72,8 +93,10 @@ export const removeFromWishlist = catchAsyncHandler(async (req, res) => {
   wishlist.products = wishlist.products.filter(
     (id) => id.toString() !== productId
   );
-
   await wishlist.save();
+
+  // Update cache
+  await redisClient.set(cacheKey, JSON.stringify(wishlist.products));
 
   res.json({
     success: true,
@@ -86,6 +109,8 @@ export const removeFromWishlist = catchAsyncHandler(async (req, res) => {
 // @route  DELETE /api/wishlist
 // @access Protected (user)
 export const clearWishlist = catchAsyncHandler(async (req, res) => {
+  const cacheKey = `wishlist:${req.user._id}`;
+
   const wishlist = await Wishlist.findOne({ user: req.user._id });
   if (!wishlist) {
     return res
@@ -95,6 +120,9 @@ export const clearWishlist = catchAsyncHandler(async (req, res) => {
 
   wishlist.products = [];
   await wishlist.save();
+
+  // Remove cache
+  await redisClient.del(cacheKey);
 
   res.json({ success: true, message: "Wishlist cleared" });
 });

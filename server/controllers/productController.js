@@ -44,10 +44,12 @@ export const getAllProducts = catchAsyncHandler(async (req, res) => {
   }
 
   // Fallback to MongoDB
-  const products = await Product.find({}).sort({ createdAt: -1 });
+  const products = await Product.find({})
+    .sort({ createdAt: -1 })
+    .populate("comments", "commentContent commentedBy");
 
   // Save to Redis for next time
-  await redis.set("all_products", JSON.stringify(products), { ex: 60 }); // cache for 60s
+  await redis.set("all_products", JSON.stringify(products), { ex: 60 });
 
   res.status(200).json({
     success: true,
@@ -71,7 +73,10 @@ export const getProductById = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).populate(
+    "comments",
+    "commentContent commentedBy"
+  );
 
   if (!product) {
     return res.status(404).json({

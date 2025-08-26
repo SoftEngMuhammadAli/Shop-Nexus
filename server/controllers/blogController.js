@@ -1,13 +1,28 @@
 import Blog from "../models/Blog.js";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
+import redis from "../utils/redisClient.js";
 
 // @desc    Get all blogs
 // @route   GET /api/blogs
 // @access  Public
 export const getBlogs = catchAsyncHandler(async (req, res) => {
+  const cachedBlogs = await redis.get("all_blogs");
+
+  if (cachedBlogs) {
+    console.log("Returning blogs from Redis cache");
+    const blogs = JSON.parse(cachedBlogs);
+    return res.status(200).json({
+      success: true,
+      count: blogs.length,
+      data: blogs,
+    });
+  }
+
   const blogs = await Blog.find({})
-    .populate("author", "name email") // populate author name and email
-    .sort({ createdAt: -1 }); // newest first
+    .populate("author", "name email")
+    .sort({ createdAt: -1 });
+
+  await redis.set("all_blogs", JSON.stringify(blogs), { ex: 60 });
 
   res.status(200).json({
     success: true,
@@ -21,14 +36,25 @@ export const getBlogs = catchAsyncHandler(async (req, res) => {
 // @access  Public
 export const getBlog = catchAsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const blog = await Blog.findById(id).populate("author", "name email");
 
-  if (!id || !blog) {
+  const cachedBlog = await redis.get(`blog:${id}`);
+  if (cachedBlog) {
+    console.log("Returning blog from Redis cache");
+    return res.status(200).json({
+      success: true,
+      data: JSON.parse(cachedBlog),
+    });
+  }
+
+  const blog = await Blog.findById(id).populate("author", "name email");
+  if (!blog) {
     return res.status(404).json({
       success: false,
       message: "Blog not found",
     });
   }
+
+  await redis.set(`blog:${id}`, JSON.stringify(blog), { ex: 60 });
 
   res.status(200).json({
     success: true,
@@ -63,15 +89,10 @@ export const createBlog = catchAsyncHandler(async (req, res) => {
     author: req.user._id,
   });
 
-  if (!blog) {
-    return res.status(404).json({ message: "Blog not found" });
-  }
-
   const populatedBlog = await blog.populate("author", "name email");
 
-  if (!populatedBlog) {
-    return res.status(404).json({ message: "Blog not found" });
-  }
+  // Invalidate cache
+  await redis.del("all_blogs");
 
   res.status(201).json({
     success: true,
@@ -109,6 +130,10 @@ export const updateBlog = catchAsyncHandler(async (req, res) => {
     runValidators: true,
   }).populate("author", "name email");
 
+  // Invalidate cache
+  await redis.del("all_blogs");
+  await redis.del(`blog:${id}`);
+
   res.status(200).json({
     success: true,
     data: blog,
@@ -129,7 +154,6 @@ export const deleteBlog = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  // Only the author or admin can delete
   if (
     blog.author.toString() !== req.user._id.toString() &&
     req.user.userRole !== "admin"
@@ -140,7 +164,11 @@ export const deleteBlog = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  await blog.remove();
+  await blog.deleteOne();
+
+  // Invalidate cache
+  await redis.del("all_blogs");
+  await redis.del(`blog:${id}`);
 
   res.status(200).json({
     success: true,

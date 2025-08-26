@@ -1,6 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import redis from "../utils/redisClient.js";
 
 // @desc   Create new order
 // @route  POST /api/orders
@@ -39,23 +40,64 @@ export const createOrder = catchAsyncHandler(async (req, res) => {
     .populate("items.product", "name price");
 
   res.status(201).json({ success: true, data: populatedOrder });
+
+  // Invalidate caches
+  await redis.del(`orders:user:${req.user._id}`);
+  await redis.del("orders:all");
 });
 
 // @desc   Get logged-in user’s orders
 // @route  GET /api/orders/my
 // @access Protected (user)
 export const getUserOrders = catchAsyncHandler(async (req, res) => {
+  const cacheKey = `orders:user:${req.user._id}`;
+
+  const cachedOrders = await redis.get(cacheKey);
+  if (cachedOrders) {
+    console.log("Returning user orders from Redis cache");
+    return res.json({
+      success: true,
+      fromCache: true,
+      ...JSON.parse(cachedOrders),
+    });
+  }
+
   const orders = await Order.find({ user: req.user._id })
     .populate("items.product", "name price")
     .sort({ createdAt: -1 });
 
-  res.json({ success: true, count: orders.length, data: orders });
+  const response = { count: orders.length, data: orders };
+
+  res.json({ success: true, ...response });
+
+  // Cache for 2 minutes
+  await redis.set(cacheKey, JSON.stringify(response), { ex: 120 });
 });
 
 // @desc   Get single order by ID
 // @route  GET /api/orders/:id
 // @access Protected (user/admin)
 export const getOrderById = catchAsyncHandler(async (req, res) => {
+  const cacheKey = `orders:${req.params.id}`;
+
+  const cachedOrder = await redis.get(cacheKey);
+  if (cachedOrder) {
+    console.log("Returning order from Redis cache");
+    const order = JSON.parse(cachedOrder);
+
+    // still enforce authorization
+    if (
+      order.user._id !== req.user._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
+    }
+
+    return res.json({ success: true, fromCache: true, data: order });
+  }
+
   const order = await Order.findById(req.params.id)
     .populate("user", "name email")
     .populate("items.product", "name price");
@@ -72,18 +114,38 @@ export const getOrderById = catchAsyncHandler(async (req, res) => {
   }
 
   res.json({ success: true, data: order });
+
+  // Cache for 2 minutes
+  await redis.set(cacheKey, JSON.stringify(order), { ex: 120 });
 });
 
 // @desc   Get all orders (admin only)
 // @route  GET /api/orders
 // @access Protected (admin)
 export const getAllOrders = catchAsyncHandler(async (req, res) => {
+  const cacheKey = "orders:all";
+
+  const cachedOrders = await redis.get(cacheKey);
+  if (cachedOrders) {
+    console.log("Returning all orders from Redis cache");
+    return res.json({
+      success: true,
+      fromCache: true,
+      ...JSON.parse(cachedOrders),
+    });
+  }
+
   const orders = await Order.find()
     .populate("user", "name email")
     .populate("items.product", "name price")
     .sort({ createdAt: -1 });
 
-  res.json({ success: true, count: orders.length, data: orders });
+  const response = { count: orders.length, data: orders };
+
+  res.json({ success: true, ...response });
+
+  // Cache for 2 minutes
+  await redis.set(cacheKey, JSON.stringify(response), { ex: 120 });
 });
 
 // @desc   Update order status (admin only)
@@ -101,6 +163,11 @@ export const updateOrderStatus = catchAsyncHandler(async (req, res) => {
   await order.save();
 
   res.json({ success: true, data: order });
+
+  // Invalidate caches
+  await redis.del(`orders:${req.params.id}`);
+  await redis.del(`orders:user:${order.user}`);
+  await redis.del("orders:all");
 });
 
 // @desc   Delete order (admin only)
@@ -116,4 +183,9 @@ export const deleteOrder = catchAsyncHandler(async (req, res) => {
   await order.deleteOne();
 
   res.json({ success: true, message: "Order removed", data: order });
+
+  // Invalidate caches
+  await redis.del(`orders:${req.params.id}`);
+  await redis.del(`orders:user:${order.user}`);
+  await redis.del("orders:all");
 });

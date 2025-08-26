@@ -1,6 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
+import redisClient from "../utils/redisClient.js";
 
 // @desc   Create a new review
 // @route  POST /api/reviews/:productId
@@ -16,7 +17,6 @@ export const createReview = catchAsyncHandler(async (req, res) => {
       .json({ success: false, message: "Product not found" });
   }
 
-  // check if user already reviewed
   const existingReview = await Review.findOne({
     user: req.user._id,
     product: productId,
@@ -35,6 +35,9 @@ export const createReview = catchAsyncHandler(async (req, res) => {
     comment,
   });
 
+  // invalidate cache for product reviews
+  await redisClient.del(`reviews:${productId}`);
+
   const populatedReview = await Review.findById(review._id)
     .populate("user", "name email")
     .populate("product", "name");
@@ -48,11 +51,26 @@ export const createReview = catchAsyncHandler(async (req, res) => {
 export const getProductReviews = catchAsyncHandler(async (req, res) => {
   const { productId } = req.params;
 
+  // check cache first
+  const cached = await redisClient.get(`reviews:${productId}`);
+  if (cached) {
+    return res.json(JSON.parse(cached));
+  }
+
   const reviews = await Review.find({ product: productId })
     .populate("user", "name email")
     .sort({ createdAt: -1 });
 
-  res.json({ success: true, count: reviews.length, data: reviews });
+  const response = { success: true, count: reviews.length, data: reviews };
+
+  // cache the result (expire in 1 hour)
+  await redisClient.setEx(
+    `reviews:${productId}`,
+    3600,
+    JSON.stringify(response)
+  );
+
+  res.json(response);
 });
 
 // @desc   Update a review
@@ -81,6 +99,9 @@ export const updateReview = catchAsyncHandler(async (req, res) => {
   review.comment = comment || review.comment;
   await review.save();
 
+  // invalidate cache for product reviews
+  await redisClient.del(`reviews:${review.product.toString()}`);
+
   res.json({ success: true, data: review });
 });
 
@@ -105,6 +126,10 @@ export const deleteReview = catchAsyncHandler(async (req, res) => {
   }
 
   await review.deleteOne();
+
+  // invalidate cache for product reviews
+  await redisClient.del(`reviews:${review.product.toString()}`);
+
   res.json({ success: true, message: "Review deleted" });
 });
 

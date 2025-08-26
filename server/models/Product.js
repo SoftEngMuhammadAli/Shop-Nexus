@@ -23,6 +23,12 @@ const productSchema = new mongoose.Schema(
       min: [1, "Minimum quantity is 1"],
       max: [10, "Maximum quantity is 10"],
     },
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
   },
   {
     timestamps: true,
