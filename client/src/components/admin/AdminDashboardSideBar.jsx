@@ -10,7 +10,10 @@ const AdminDashboardSideBar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         { label: "📄 Get All Products", href: "/admin/manage-products" },
         { label: "➕ Create Product", href: "/admin/create-product" },
-        { label: "✏️ Update Product", href: "/admin/products/update/:id" },
+        {
+          label: "✏️ Update Product",
+          href: "/admin/products/edit/:id",
+        },
         { label: "🗑️ Delete Product", href: "/admin/products/delete/:id" },
       ],
     },
@@ -20,7 +23,7 @@ const AdminDashboardSideBar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         { label: "📄 Get All Blogs", href: "/admin/blogs/get-all" },
         { label: "➕ Create Blog", href: "/admin/blogs/create" },
-        { label: "✏️ Update Blog", href: "/admin/blogs/update/:id" },
+        { label: "✏️ Update Blog", href: "/admin/blogs/edit/:id" },
         { label: "🗑️ Delete Blog", href: "/admin/blogs/delete/:id" },
       ],
     },

@@ -10,7 +10,7 @@ export const getBlogs = catchAsyncHandler(async (req, res) => {
 
   if (cachedBlogs) {
     console.log("Returning blogs from Redis cache");
-    const blogs = JSON.parse(cachedBlogs);
+    const blogs = cachedBlogs;
     return res.status(200).json({
       success: true,
       count: blogs.length,

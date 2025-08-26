@@ -131,7 +131,7 @@ export const getAllOrders = catchAsyncHandler(async (req, res) => {
     return res.json({
       success: true,
       fromCache: true,
-      ...JSON.parse(cachedOrders),
+      cachedOrders,
     });
   }
 

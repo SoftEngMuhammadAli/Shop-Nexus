@@ -1,8 +1,47 @@
-// src/pages/admin/CreateProductPage.jsx
-import React from "react";
+import React, { useState } from "react";
 import { FiPlusCircle, FiUploadCloud } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { createProduct } from "../../../features/productSlice";
+import { toast } from "react-toastify";
 
 const CreateProductPage = () => {
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.products);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    quantity: "",
+    imageUrl: "",
+  });
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Submit handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const result = await dispatch(createProduct(formData)).unwrap();
+      toast.success("✅ Product created successfully!");
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        quantity: "",
+        imageUrl: "",
+      });
+    } catch (err) {
+      toast.error(err || "❌ Failed to create product");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
@@ -13,7 +52,7 @@ const CreateProductPage = () => {
         </div>
 
         {/* Form */}
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700">
@@ -21,9 +60,12 @@ const CreateProductPage = () => {
             </label>
             <input
               type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               placeholder="Enter product name"
               className="w-full mt-1 px-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              defaultValue="Sample Product"
+              required
             />
           </div>
 
@@ -33,10 +75,13 @@ const CreateProductPage = () => {
               Description
             </label>
             <textarea
+              name="description"
               rows="4"
+              value={formData.description}
+              onChange={handleChange}
               placeholder="Enter product description"
               className="w-full mt-1 px-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              defaultValue="This is a sample description for the product."
+              required
             ></textarea>
           </div>
 
@@ -48,9 +93,12 @@ const CreateProductPage = () => {
               </label>
               <input
                 type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
                 placeholder="0.00"
                 className="w-full mt-1 px-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                defaultValue="99.99"
+                required
               />
             </div>
             <div>
@@ -59,37 +107,45 @@ const CreateProductPage = () => {
               </label>
               <input
                 type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
                 placeholder="0"
                 className="w-full mt-1 px-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                defaultValue="10"
+                required
               />
             </div>
           </div>
 
-          {/* Image Upload */}
+          {/* Image Upload (simple text url for now) */}
           <div>
             <label className="block text-sm font-semibold text-gray-700">
-              Product Image
+              Product Image URL
             </label>
-            <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-blue-500 transition">
-              <FiUploadCloud className="text-4xl text-gray-400 mb-2" />
-              <p className="text-gray-500 text-sm">
-                Drag & drop or click to upload
-              </p>
+            <input
+              type="text"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              placeholder="Paste image URL"
+              className="w-full mt-1 px-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <div className="p-3 rounded-lg text-sm font-medium bg-red-100 text-red-700">
+              ❌ {error}
             </div>
-          </div>
+          )}
 
-          {/* Static message preview */}
-          <div className="p-3 rounded-lg text-sm font-medium bg-green-100 text-green-700">
-            ✅ Product created successfully!
-          </div>
-
-          {/* Submit Button (no action) */}
+          {/* Submit Button */}
           <button
-            type="button"
-            className="w-full py-3 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition transform hover:scale-[1.01]"
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition transform hover:scale-[1.01] disabled:opacity-50"
           >
-            🚀 Create Product
+            {loading ? "⏳ Creating..." : "🚀 Create Product"}
           </button>
         </form>
       </div>

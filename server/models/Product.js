@@ -15,13 +15,13 @@ const productSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: [true, "Product price is required"],
-      min: [0, "Price must be at least 0"],
+      min: [1, "Price must be at least 1"],
     },
     quantity: {
       type: Number,
       default: 1,
       min: [1, "Minimum quantity is 1"],
-      max: [10, "Maximum quantity is 10"],
+      max: [100, "Maximum quantity is 100"],
     },
     comments: [
       {

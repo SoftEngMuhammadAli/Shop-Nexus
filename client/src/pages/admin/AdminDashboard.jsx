@@ -101,7 +101,7 @@ const AdminDashboardPage = () => {
                 .map((product) => (
                   <AdminDashboardItemCard
                     key={product._id}
-                    image={null}
+                    image={product.imageUrl}
                     title={product.name}
                     description={product.description}
                     meta={`$${product.price}`}

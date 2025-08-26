@@ -24,10 +24,15 @@ import ProtectedRouteWrapper from "../routes/ProtectedRouteWrapper";
 import RoleProtectedRouteWrapper from "../routes/RoleBaseRouteWrapper";
 import CartPage from "../pages/user/cart/CartPage";
 import CheckoutPage from "../pages/user/cart/CheckOutPage";
-import OrderPage from "../pages/user/orders/OrderPage";
 import AdminSettingsPage from "../pages/admin/settings/AdminSettingsPage";
 import CreateProductPage from "../pages/admin/products/CreateProduct";
 import { CreateBlogPage } from "../pages/admin/blogs/CreateBlog";
+import UpdateProductPage from "../pages/admin/products/UpdateProduct";
+import UpdateBlogPage from "../pages/admin/blogs/UpdateBlog";
+import ViewUserPage from "../pages/admin/users/ViewUser";
+import UpdateUserPage from "../pages/admin/users/UpdateUser";
+import ManageAdminOrdersPage from "../pages/admin/orders/ManageAdminOrders";
+import UserOrderPage from "../pages/user/orders/OrderPage";
 
 // Layout that wraps protected routes
 const MainLayout = () => (
@@ -55,7 +60,7 @@ export const AppRoutes = () => (
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/manage-orders" element={<OrderPage />} />
+          <Route path="/manage-orders" element={<UserOrderPage />} />
           <Route path="/settings" element={<AdminSettingsPage />} />
 
           {/* Admin-only routes */}
@@ -70,6 +75,8 @@ export const AppRoutes = () => (
 
             {/* User Routers for Admin */}
             <Route path="/admin/manage-users" element={<ManageUsersPage />} />
+            <Route path="/admin/users/:id" element={<ViewUserPage />} />
+            <Route path="/admin/users/edit/:id" element={<UpdateUserPage />} />
 
             {/* Product Routers for Admin */}
             <Route
@@ -80,10 +87,21 @@ export const AppRoutes = () => (
               path="/admin/create-product"
               element={<CreateProductPage />}
             />
+            <Route
+              path="/admin/products/edit/:id"
+              element={<UpdateProductPage />}
+            />
+
+            {/* Order Routes for Admin */}
+            <Route
+              path="/admin/manage-orders"
+              element={<ManageAdminOrdersPage />}
+            />
 
             {/* Blogs Router for Admin */}
             <Route path="/admin/blogs/get-all" element={<ManageBlogsPage />} />
             <Route path="/admin/blogs/create" element={<CreateBlogPage />} />
+            <Route path="/admin/blogs/edit/:id" element={<UpdateBlogPage />} />
           </Route>
         </Route>
       </Route>

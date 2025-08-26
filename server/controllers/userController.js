@@ -49,7 +49,9 @@ export const getUserProfiles = catchAsyncHandler(async (req, res) => {
     });
   }
 
-  const users = await User.find({}).select("-password -__v");
+  const users = await User.find({})
+    .select("-password -__v")
+    .sort({ createdAt: -1 });
 
   await redis.set(cacheKey, JSON.stringify(users), { ex: 300 });
 
