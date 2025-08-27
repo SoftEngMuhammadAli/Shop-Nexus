@@ -18,6 +18,7 @@ import reviewRouter from "./routers/reviewRoutes.js";
 import likeRouter from "./routers/likeRoutes.js";
 import commentRouter from "./routers/commentRoutes.js";
 import cartRouter from "./routers/cartRoutes.js";
+import newsletterRouter from "./routers/newsLetterRoutes.js";
 
 dotenv.config();
 
@@ -87,6 +88,7 @@ app.use("/api/reviews", reviewRouter);
 app.use("/api/likes", likeRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/newsletter", newsletterRouter);
 
 // --- Connect to DB first, then start server ---
 const dbUri = process.env.MONGODB_URI;
