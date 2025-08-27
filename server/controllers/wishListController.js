@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Wishlist from "../models/Wishlist.js";
 import Product from "../models/Product.js";
-import redisClient from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc   Add product to wishlist
 // @route  POST /api/wishlist/:productId
@@ -40,7 +40,7 @@ export const addToWishlist = catchAsyncHandler(async (req, res) => {
   );
 
   // Update cache
-  await redisClient.set(cacheKey, JSON.stringify(populatedWishlist.products));
+  await redis.set(cacheKey, JSON.stringify(populatedWishlist.products));
 
   res.status(201).json({ success: true, data: populatedWishlist });
 });
@@ -52,7 +52,7 @@ export const getWishlist = catchAsyncHandler(async (req, res) => {
   const cacheKey = `wishlist:${req.user._id}`;
 
   // Check Redis first
-  const cached = await redisClient.get(cacheKey);
+  const cached = await redis.get(cacheKey);
   if (cached) {
     return res.json({
       success: true,
@@ -71,7 +71,7 @@ export const getWishlist = catchAsyncHandler(async (req, res) => {
   }
 
   // Save to Redis
-  await redisClient.set(cacheKey, JSON.stringify(wishlist.products));
+  await redis.set(cacheKey, JSON.stringify(wishlist.products));
 
   res.json({ success: true, data: wishlist.products });
 });
@@ -96,7 +96,7 @@ export const removeFromWishlist = catchAsyncHandler(async (req, res) => {
   await wishlist.save();
 
   // Update cache
-  await redisClient.set(cacheKey, JSON.stringify(wishlist.products));
+  await redis.set(cacheKey, JSON.stringify(wishlist.products));
 
   res.json({
     success: true,
@@ -122,7 +122,7 @@ export const clearWishlist = catchAsyncHandler(async (req, res) => {
   await wishlist.save();
 
   // Remove cache
-  await redisClient.del(cacheKey);
+  await redis.del(cacheKey);
 
   res.json({ success: true, message: "Wishlist cleared" });
 });

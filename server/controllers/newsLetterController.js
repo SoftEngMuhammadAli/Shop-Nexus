@@ -1,13 +1,14 @@
 import Subscriber from "../models/NewsLetter.js";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
+import { redis } from "../utils/redisClient.js";
 
 /**
  * @route   POST /api/newsletter/subscribe
  * @desc    Subscribe user to newsletter
- * @access  Protected (or make it public if you don’t want auth)
+ * @access  Public (change to protected if you want auth)
  */
 export const subscribeToNewsLetter = catchAsyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const email = req.body.email?.toLowerCase().trim();
 
   if (!email) {
     return res
@@ -27,6 +28,9 @@ export const subscribeToNewsLetter = catchAsyncHandler(async (req, res) => {
   const subscriber = new Subscriber({ email });
   await subscriber.save();
 
+  // Invalidate cache so next GET fetches fresh data
+  await redis.del("subscribers");
+
   return res
     .status(201)
     .json({ success: true, message: "Subscribed successfully!" });
@@ -38,6 +42,26 @@ export const subscribeToNewsLetter = catchAsyncHandler(async (req, res) => {
  * @access  Private/Admin
  */
 export const getAllSubscribers = catchAsyncHandler(async (req, res) => {
+  // Try cache first
+  const cached = await redis.get("subscribers");
+
+  if (cached) {
+    return res.json({
+      success: true,
+      source: "cache",
+      subscribers: JSON.parse(cached),
+    });
+  }
+
+  // If not cached, fetch from DB
   const subscribers = await Subscriber.find().sort({ createdAt: -1 });
-  res.json({ success: true, subscribers });
+
+  // Store in cache for next time (set TTL = 1 hour)
+  await redis.set("subscribers", JSON.stringify(subscribers), "EX", 3600);
+
+  res.json({
+    success: true,
+    source: "db",
+    subscribers,
+  });
 });

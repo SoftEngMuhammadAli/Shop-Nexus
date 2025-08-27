@@ -1,6 +1,6 @@
 import Blog from "../models/Blog.js";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc    Get all blogs
 // @route   GET /api/blogs

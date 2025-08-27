@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc   Get logged-in user's cart
 // @route  GET /api/cart

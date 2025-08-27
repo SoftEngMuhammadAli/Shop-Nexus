@@ -1,6 +1,6 @@
 import Product from "../models/Product.js";
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // ==========================
 // CREATE PRODUCT

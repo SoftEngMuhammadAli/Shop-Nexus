@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
-import redisClient from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc   Create a new review
 // @route  POST /api/reviews/:productId
@@ -36,7 +36,7 @@ export const createReview = catchAsyncHandler(async (req, res) => {
   });
 
   // invalidate cache for product reviews
-  await redisClient.del(`reviews:${productId}`);
+  await redis.del(`reviews:${productId}`);
 
   const populatedReview = await Review.findById(review._id)
     .populate("user", "name email")
@@ -52,7 +52,7 @@ export const getProductReviews = catchAsyncHandler(async (req, res) => {
   const { productId } = req.params;
 
   // check cache first
-  const cached = await redisClient.get(`reviews:${productId}`);
+  const cached = await redis.get(`reviews:${productId}`);
   if (cached) {
     return res.json(JSON.parse(cached));
   }
@@ -64,11 +64,7 @@ export const getProductReviews = catchAsyncHandler(async (req, res) => {
   const response = { success: true, count: reviews.length, data: reviews };
 
   // cache the result (expire in 1 hour)
-  await redisClient.setEx(
-    `reviews:${productId}`,
-    3600,
-    JSON.stringify(response)
-  );
+  await redis.setEx(`reviews:${productId}`, 3600, JSON.stringify(response));
 
   res.json(response);
 });
@@ -100,7 +96,7 @@ export const updateReview = catchAsyncHandler(async (req, res) => {
   await review.save();
 
   // invalidate cache for product reviews
-  await redisClient.del(`reviews:${review.product.toString()}`);
+  await redis.del(`reviews:${review.product.toString()}`);
 
   res.json({ success: true, data: review });
 });
@@ -128,7 +124,7 @@ export const deleteReview = catchAsyncHandler(async (req, res) => {
   await review.deleteOne();
 
   // invalidate cache for product reviews
-  await redisClient.del(`reviews:${review.product.toString()}`);
+  await redis.del(`reviews:${review.product.toString()}`);
 
   res.json({ success: true, message: "Review deleted" });
 });

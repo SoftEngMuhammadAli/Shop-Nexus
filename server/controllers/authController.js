@@ -5,7 +5,7 @@ import {
   hashPassword,
   comparePasswords,
 } from "../utils/authHelpers.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // ==========================
 // REGISTER USER

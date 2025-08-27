@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import User from "../models/User.js";
 import { generateToken } from "../utils/authHelpers.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // ==========================
 // GET Single User by ID

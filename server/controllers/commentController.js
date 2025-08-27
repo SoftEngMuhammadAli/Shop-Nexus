@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Comment from "../models/Comment.js";
 import Product from "../models/Product.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc   Add a comment to a product
 // @route  POST /api/comments/:productId

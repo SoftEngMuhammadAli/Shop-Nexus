@@ -1,7 +1,7 @@
 import { catchAsyncHandler } from "../middlewares/errorHandler.js";
 import Like from "../models/Like.js";
 import Product from "../models/Product.js";
-import redis from "../utils/redisClient.js";
+import { redis } from "../utils/redisClient.js";
 
 // @desc   Like a product
 // @route  POST /api/likes/:productId
