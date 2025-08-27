@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useFetchData } from "../../../hooks/useCustomHook";
 import { Loader } from "../../../components/common/Loader";
 import { ShowError } from "../../../components/common/Error";

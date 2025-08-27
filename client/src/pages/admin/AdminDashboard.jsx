@@ -32,6 +32,12 @@ const AdminDashboardPage = () => {
     error: blogsError,
   } = useFetchData(`${import.meta.env.VITE_API_BASE_URL}/api/blogs`);
 
+  const {
+    data: newsLetterData,
+    loading: newsLetterLoading,
+    error: newsLetterError,
+  } = useFetchData(`${import.meta.env.VITE_API_BASE_URL}/api/newsletter/all`);
+
   return (
     <section className="flex min-h-screen bg-gray-100">
       {/* AdminSideBar */}
@@ -89,6 +95,12 @@ const AdminDashboardPage = () => {
             title="Total Blogs Pending"
             count={blogs?.filter((blog) => blog.status === "pending").length}
             loading={blogsLoading}
+          />
+
+          <AdminDashboardStatsCard
+            title="Total Newsletters Subscribed"
+            count={newsLetterData?.subscribers?.length}
+            loading={newsLetterLoading}
           />
         </div>
 

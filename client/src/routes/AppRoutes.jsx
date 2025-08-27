@@ -38,6 +38,7 @@ import DeleteBlogPage from "../pages/admin/blogs/DeleteBlog";
 import DeleteProductPage from "../pages/admin/products/DeleteProduct";
 import HomePage from "../pages/user/HomePage";
 import AppFooter from "../components/common/Footer";
+import ViewAllBlogsPage from "../pages/user/blogs/ViewAllBlogs";
 
 // Layout that wraps protected routes
 const MainLayout = () => (
@@ -68,6 +69,7 @@ export const AppRoutes = () => (
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/manage-orders" element={<UserOrderPage />} />
           <Route path="/settings" element={<AdminSettingsPage />} />
+          <Route path="/blogs" element={<ViewAllBlogsPage />} />
 
           {/* Admin-only routes */}
           <Route

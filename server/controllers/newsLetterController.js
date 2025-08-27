@@ -57,7 +57,7 @@ export const getAllSubscribers = catchAsyncHandler(async (req, res) => {
   const subscribers = await Subscriber.find().sort({ createdAt: -1 });
 
   // Store in cache for next time (set TTL = 1 hour)
-  await redis.set("subscribers", JSON.stringify(subscribers), "EX", 3600);
+  await redis.set("subscribers", JSON.stringify(subscribers), { ex: 3600 });
 
   res.json({
     success: true,

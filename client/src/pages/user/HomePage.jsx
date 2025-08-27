@@ -30,7 +30,7 @@ const HomePage = () => {
 
       {/* Category Section */}
       <section className="py-12 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto mb-6">
+        <div className="max-w-6xl mx-auto mb-5">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">
             Shop by Category
           </h2>
@@ -39,7 +39,7 @@ const HomePage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 m-10 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 mb-0 mt-10 ml-10 mr-10 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
             <div
               key={category.id}
@@ -68,7 +68,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Latest Uploaded Products */}
+      {/* Products Section */}
       <section className="py-12 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">
@@ -80,15 +80,12 @@ const HomePage = () => {
                 className="text-blue-500 font-medium hover:underline transition-colors"
                 onClick={() => {
                   toast.info("Redirecting to all products...");
-                  setTimeout(() => {
-                    window.location.href = "/products";
-                  }, 2000);
+                  window.location.href = "/products";
                 }}
               >
                 View All
               </button>
             </div>
-
             <p className="text-gray-600 mb-2">
               Check out the newest additions to our store, carefully selected
               for quality and style.
@@ -99,45 +96,35 @@ const HomePage = () => {
             </p>
           </div>
 
-          {productsLoading && (
+          {productsLoading ? (
             <div className="text-center py-6 text-gray-500">
               <Loader />
             </div>
-          )}
-
-          {productsError && (
+          ) : productsError ? (
             <div className="text-center py-6 text-red-500">
               <ShowError error={productsError} />
             </div>
-          )}
-
-          {!productsLoading && !productsError && productsData?.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {productsData
-                .slice(0, 8) // show latest 8 products
-                .map((product) => (
-                  <CustomCard
-                    key={product._id}
-                    image={product.image || product.imageUrl}
-                    title={product.name}
-                    description={product.description || "No description"}
-                    meta={`$${product.price}`}
-                    buttonText="View Details"
-                    onButtonClick={() => {
-                      toast.info("Redirecting to product details...");
-                    }}
-                  />
-                ))}
+          ) : productsData?.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {productsData.slice(0, 6).map((product) => (
+                <CustomCard
+                  key={product._id}
+                  image={product.image || product.imageUrl}
+                  title={product.name}
+                  description={product.description || "No description"}
+                  meta={`$${product.price}`}
+                  buttonText="View Details"
+                  onButtonClick={() => {}}
+                />
+              ))}
             </div>
-          )}
-
-          {!productsLoading && !productsError && productsData?.length === 0 && (
+          ) : (
             <p className="text-gray-500 text-center py-6">No products found.</p>
           )}
         </div>
       </section>
 
-      {/* Latest Blogs Section */}
+      {/* Blogs Section */}
       <section className="py-12 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">
@@ -149,15 +136,12 @@ const HomePage = () => {
                 className="text-blue-500 font-medium hover:underline transition-colors"
                 onClick={() => {
                   toast.info("Redirecting to all blogs...");
-                  setTimeout(() => {
-                    window.location.href = "/blogs";
-                  }, 2000);
+                  window.location.href = "/blogs";
                 }}
               >
                 View All
               </button>
             </div>
-
             <p className="text-gray-600">
               Stay updated with the latest trends and insights from our blog.
             </p>
@@ -167,26 +151,27 @@ const HomePage = () => {
             </p>
           </div>
 
-          {blogsLoading && (
+          {blogsLoading ? (
             <div className="text-center py-6 text-gray-500">
               <Loader />
             </div>
-          )}
-
-          {blogsError && (
+          ) : blogsError ? (
             <div className="text-center py-6 text-red-500">
               <ShowError error={blogsError} />
             </div>
-          )}
-
-          {!blogsLoading && !blogsError && blogs?.length > 0 && (
+          ) : blogs?.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {blogs.slice(0, 6).map((blog) => (
                 <CustomCard
                   key={blog._id}
                   image={blog.coverImageUrl || blog.image}
                   title={blog.title}
-                  description={blog.excerpt || blog.content || "No content"}
+                  description={
+                    (blog.excerpt || blog.content || "No content").slice(
+                      0,
+                      120
+                    ) + "..."
+                  }
                   meta={`${blog.readingTime || "1m"} read`}
                   buttonText="Read More"
                   onButtonClick={() =>
@@ -195,9 +180,7 @@ const HomePage = () => {
                 />
               ))}
             </div>
-          )}
-
-          {!blogsLoading && !blogsError && blogs?.length === 0 && (
+          ) : (
             <p className="text-gray-500 text-center py-6">No blogs found.</p>
           )}
         </div>
