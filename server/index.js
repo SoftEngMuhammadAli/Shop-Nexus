@@ -18,6 +18,8 @@ import reviewRouter from "./routers/reviewRoutes.js";
 import likeRouter from "./routers/likeRoutes.js";
 import commentRouter from "./routers/commentRoutes.js";
 import cartRouter from "./routers/cartRoutes.js";
+// Cron Job
+import "./utils/crons/newsletterCron.js";
 import newsletterRouter from "./routers/newsLetterRoutes.js";
 
 dotenv.config();
